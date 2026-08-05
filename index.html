@@ -8,17 +8,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-    <!-- html-docx-js untuk konversi HTML ke Word .docx -->
+    
+    <!-- Library untuk Konversi Word (.docx) -->
     <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <!-- Library untuk Konversi PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-gray-100 p-6">
     <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md border border-gray-200">
         
-        <div class="flex justify-between items-center border-b pb-4 mb-6">
-            <span class="font-bold text-red-600 tracking-widest text-lg">RAHASIA</span>
-            <div class="text-right text-xs font-semibold text-gray-600 uppercase">
-                Sekolah Tinggi Intelijen Negara<br>Intelijen Teknologi
+        <div class="text-center mb-4">
+            <span class="font-bold text-black tracking-widest text-lg">RAHASIA</span>
+        </div>
+        <div class="border-b-2 border-black pb-1 mb-6 inline-block text-left">
+            <div class="text-xs font-semibold text-gray-800 uppercase leading-tight">
+                SEKOLAH TINGGI INTELIJEN NEGARA<br>INTELIJEN TEKNOLOGI
             </div>
         </div>
 
@@ -83,12 +89,12 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold mb-1">Fakta-Fakta</label>
+                <label class="block text-sm font-semibold mb-1">I. FAKTA-FAKTA</label>
                 <div id="editorFakta" class="h-44 bg-white"></div>
             </div>
 
             <div>
-                <label class="block text-sm font-semibold mb-1">Catatan</label>
+                <label class="block text-sm font-semibold mb-1">II. CATATAN</label>
                 <div id="editorCatatan" class="h-36 bg-white"></div>
             </div>
 
@@ -98,9 +104,15 @@
                 <div id="imagePreview" class="mt-2"></div>
             </div>
 
-            <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-3 rounded shadow transition">
-                Download Dokumen (.docx) Langsung
-            </button>
+            <!-- Menggunakan 2 Tombol Terpisah untuk Format Berbeda -->
+            <div class="flex flex-col md:flex-row gap-4 pt-4 border-t mt-6">
+                <button type="button" onclick="generateDocument('docx')" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded shadow transition">
+                    Download Word (.docx)
+                </button>
+                <button type="button" onclick="generateDocument('pdf')" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 rounded shadow transition">
+                    Download PDF (.pdf)
+                </button>
+            </div>
         </form>
     </div>
 
@@ -108,7 +120,6 @@
         const quillFakta = new Quill('#editorFakta', { theme: 'snow' });
         const quillCatatan = new Quill('#editorCatatan', { theme: 'snow' });
 
-        // Preview foto jika diupload
         let base64Image = "";
         document.getElementById('fotoLampiran').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -116,69 +127,114 @@
                 const reader = new FileReader();
                 reader.onload = function(evt) {
                     base64Image = evt.target.result;
-                    document.getElementById('imagePreview').innerHTML = `<img src="${base64Image}" class="max-h-48 rounded border">`;
+                    document.getElementById('imagePreview').innerHTML = `<img src="${base64Image}" style="width: 5cm; height: 6cm; object-fit: cover;" class="rounded border mt-2">`;
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        document.getElementById('reportForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
+        // Fungsi Utama untuk Generate Dokumen (Menerima parameter 'docx' atau 'pdf')
+        function generateDocument(type) {
+            // Validasi Input Wajib
             const noLaporan = document.getElementById('noLaporan').value;
+            const hal = document.getElementById('hal').value;
+            if (!noLaporan || !hal) {
+                alert("Harap isi No. Laporan dan Hal / Subjek terlebih dahulu.");
+                return;
+            }
+
             const bulan = document.getElementById('bulan').value;
             const tahun = document.getElementById('tahun').value;
-            const hal = document.getElementById('hal').value;
             const nilai = document.getElementById('nilai').value;
             const namaAkun = document.getElementById('namaAkun').value;
             const faktaHtml = quillFakta.root.innerHTML;
             const catatanHtml = quillCatatan.root.innerHTML;
+            const fileName = `LI-${noLaporan}-${bulan}-${tahun}`;
 
-            // Merakit HTML Dokumen Sesuai Format Word Master
-            const docContent = `
-                <!DOCTYPE html>
-                <html>
-                <head><meta charset="UTF-8"></head>
-                <body style="font-family: Arial, sans-serif; font-size: 11pt;">
-                    <table width="100%">
-                        <tr>
-                            <td style="color: red; font-weight: bold; font-size: 14pt;">RAHASIA</td>
-                            <td align="right" style="font-size: 9pt; font-weight: bold;">
-                                SEKOLAH TINGGI INTELIJEN NEGARA<br>INTELIJEN TEKNOLOGI
-                            </td>
-                        </tr>
-                    </table>
+            // Struktur HTML Murni (Menggunakan inline CSS ketat agar presisi di Word & PDF)
+            const docBody = `
+                <div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.3; color: black;">
+                    <!-- Header RAHASIA -->
+                    <div style="text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 12pt;">RAHASIA</div>
+
+                    <!-- Kop Surat -->
+                    <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #000000; display: inline-block; padding-bottom: 2px; margin-bottom: 18pt;">
+                        SEKOLAH TINGGI INTELIJEN NEGARA<br>INTELIJEN TEKNOLOGI
+                    </div>
                     <br><br>
-                    <h2 align="center" style="text-decoration: underline;">LAPORAN INFORMASI</h2>
-                    <p align="center">Nomor: R / LI – ${noLaporan} / ${bulan} / ${tahun}</p>
-                    <br>
-                    <table border="0" cellpadding="3">
-                        <tr><td><b>Kepada</b></td><td>:</td><td>Yth. Kepala Prodi Intelijen Teknologi</td></tr>
-                        <tr><td><b>Dari</b></td><td>:</td><td>${namaAkun}</td></tr>
+
+                    <!-- Judul Laporan -->
+                    <div style="text-align: center; font-size: 12pt; font-weight: bold; text-decoration: underline; margin-bottom: 2pt;">LAPORAN INFORMASI</div>
+                    <div style="text-align: center; font-size: 12pt; margin-top: 0; margin-bottom: 15pt;">Nomor: R / LI – ${noLaporan} / ${bulan} / ${tahun}</div>
+                    
+                    <!-- Tabel Meta -->
+                    <table style="margin-left: auto; margin-right: auto; width: 85%; border-collapse: collapse;" border="0">
                         <tr>
-                            <td valign="top"><b>Tembusan</b></td><td valign="top">:</td>
-                            <td>1. Sekretaris Prodi Intelijen Teknologi<br>2. Staf Prodi Intelijen Teknologi</td>
+                            <td style="width: 18%; vertical-align: top; padding: 2px 4px; font-size: 12pt;">Kepada</td>
+                            <td style="width: 3%; vertical-align: top; padding: 2px 4px; font-size: 12pt;">:</td>
+                            <td style="width: 79%; vertical-align: top; padding: 2px 4px; font-size: 12pt;">Yth. Kepala Prodi Intelijen Teknologi</td>
                         </tr>
-                        <tr><td><b>Hal</b></td><td>:</td><td>${hal}</td></tr>
-                        <tr><td><b>Nilai</b></td><td>:</td><td>${nilai}</td></tr>
+                        <tr>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">Dari</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">:</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">${namaAkun}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">Tembusan</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">:</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">1. Sekretaris Prodi Intelijen Teknologi<br>2. Staf Prodi Intelijen Teknologi</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">Hal</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">:</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">${hal}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">Nilai</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">:</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">${nilai}</td>
+                        </tr>
                     </table>
                     <br>
-                    <h4 style="margin-bottom: 2px;">FAKTA-FAKTA</h4>
-                    <div>${faktaHtml}</div>
-                    <br>
-                    <h4 style="margin-bottom: 2px;">CATATAN</h4>
-                    <div>${catatanHtml}</div>
-                    <br>
-                    <h4 style="margin-bottom: 2px;">LAMPIRAN</h4>
-                    ${base64Image ? `<img src="${base64Image}" width="400" />` : '<p>-</p>'}
-                </body>
-                </html>
+
+                    <!-- Fakta-fakta -->
+                    <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">I. FAKTA-FAKTA</div>
+                    <div style="margin-bottom: 12pt;">${faktaHtml}</div>
+
+                    <!-- Catatan -->
+                    <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">II. CATATAN</div>
+                    <div style="margin-bottom: 12pt;">${catatanHtml}</div>
+
+                    <!-- Lampiran -->
+                    <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">LAMPIRAN</div>
+                    ${base64Image ? `<img src="${base64Image}" style="width: 5cm; height: 6cm; object-fit: cover;" />` : '<p>-</p>'}
+                </div>
             `;
 
-            // Convert HTML ke .docx file langsung di browser
-            const converted = htmlDocx.asBlob(docContent);
-            saveAs(converted, `LI-${noLaporan}-${bulan}-${tahun}.docx`);
-        });
+            // Percabangan Logika Ekspor
+            if (type === 'docx') {
+                // Ekspor ke format Word
+                const htmlTemplate = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${docBody}</body></html>`;
+                const converted = htmlDocx.asBlob(htmlTemplate);
+                saveAs(converted, `${fileName}.docx`);
+            } else if (type === 'pdf') {
+                // Ekspor ke format PDF
+                const pdfElement = document.createElement('div');
+                pdfElement.innerHTML = docBody;
+                
+                // Konfigurasi Margin & Ukuran Kertas PDF (Format A4)
+                const opt = {
+                    margin:       1.5, // 1.5 cm margin
+                    filename:     `${fileName}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'cm', format: 'a4', orientation: 'portrait' }
+                };
+                
+                // Proses render PDF
+                html2pdf().set(opt).from(pdfElement).save();
+            }
+        }
     </script>
 </body>
 </html>
