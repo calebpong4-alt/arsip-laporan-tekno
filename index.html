@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Laporan Informasi Intelijen</title>
+    <title>ARSIP TEKNOLOGI - Sistem Laporan Informasi</title>
     <!-- Tailwind CSS & FontAwesome Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -25,7 +25,7 @@
     <div id="authSection" class="min-h-screen flex items-center justify-center p-4">
         <div class="max-w-md w-full bg-white rounded-xl shadow-lg border p-8">
             
-            <!-- Header (Judul Diubah & Sub-judul Dihapus) -->
+            <!-- Header ARSIP TEKNOLOGI -->
             <div class="text-center mb-8">
                 <h2 class="text-2xl font-bold tracking-tight text-gray-900">ARSIP TEKNOLOGI</h2>
             </div>
@@ -55,7 +55,7 @@
                 </p>
             </div>
 
-            <!-- TAMPILAN 2: FORM PENDAFTARAN (Default Hidden) -->
+            <!-- TAMPILAN 2: FORM PENDAFTARAN -->
             <div id="signUpBox" class="hidden">
                 <form id="signUpForm" onsubmit="handleSignUp(event)" class="space-y-4">
                     <div>
@@ -111,7 +111,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- TAHAP 3: DASHBOARD UTAMA (SUB-BAGIAN)      -->
+    <!-- TAHAP 3: DASHBOARD UTAMA                   -->
     <!-- ========================================== -->
     <div id="dashboardSection" class="min-h-screen flex flex-col hidden">
         
@@ -119,17 +119,17 @@
         <header class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center border-b border-gray-800">
             <div class="flex items-center space-x-3">
                 <span class="font-bold text-red-500 tracking-widest border border-red-500 px-2 py-0.5 rounded text-xs">RAHASIA</span>
-                <span class="font-bold text-sm hidden md:inline">STIN - Intelijen Teknologi</span>
+                <span class="font-bold text-sm hidden md:inline">ARSIP TEKNOLOGI</span>
             </div>
             <div class="flex items-center space-x-4">
-                <span id="displayUserName" class="text-sm text-gray-300 font-semibold">User</span>
+                <span id="displayUserName" class="text-sm text-gray-300 font-semibold">Pengguna</span>
                 <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded transition">
                     <i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar
                 </button>
             </div>
         </header>
 
-        <!-- Sidebar Layout -->
+        <!-- Sidebar & Main Content -->
         <div class="flex flex-1 flex-col md:flex-row">
             <!-- Sidebar Left -->
             <aside class="w-full md:w-64 bg-white border-r border-gray-200 p-4">
@@ -146,14 +146,14 @@
                 </nav>
             </aside>
 
-            <!-- Main Dynamic Content Area -->
+            <!-- Dynamic Workspace -->
             <main class="flex-1 p-6 bg-gray-50 overflow-y-auto">
                 
-                <!-- Sub-Bagian 1: Pembuat Laporan Otomatis -->
+                <!-- Sub-Bagian 1: Pembuat Laporan -->
                 <section id="subSectionGenerator">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         
-                        <!-- Form Input -->
+                        <!-- Form Input Laporan -->
                         <div class="bg-white p-6 rounded-xl border shadow-sm space-y-6">
                             <h3 class="text-lg font-bold border-b pb-3">Form Input Laporan Informasi</h3>
 
@@ -209,7 +209,7 @@
                                 <input type="file" id="fotoLampiran" accept="image/*" class="w-full border p-2 rounded text-xs">
                             </div>
 
-                            <!-- Tombol Aksi Download & Direct Drive -->
+                            <!-- Tombol Download & Drive -->
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t">
                                 <button type="button" onclick="generateDocument('docx')" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2.5 rounded text-xs shadow transition">
                                     <i class="fa-solid fa-file-word mr-1"></i> Download Word
@@ -226,21 +226,18 @@
                         <!-- Live Preview Canvas -->
                         <div class="bg-white p-6 rounded-xl border shadow-sm">
                             <h3 class="text-lg font-bold border-b pb-3 mb-4">Live Document Preview</h3>
-                            <div class="border p-6 rounded bg-white min-h-[600px] overflow-y-auto" id="previewContainer">
-                                <!-- Konten Render Dokumen Otomatis Masuk di Sini -->
-                            </div>
+                            <div class="border p-6 rounded bg-white min-h-[600px] overflow-y-auto" id="previewContainer"></div>
                         </div>
 
                     </div>
                 </section>
 
-                <!-- Sub-Bagian 2: Google Drive Kelas Integration -->
+                <!-- Sub-Bagian 2: Google Drive Kelas -->
                 <section id="subSectionDrive" class="hidden">
                     <div class="bg-white p-6 rounded-xl border shadow-sm">
                         <h3 class="text-lg font-bold mb-2">Google Drive Penyimpanan Kelas</h3>
                         <p class="text-sm text-gray-600 mb-6">Seluruh laporan yang dibuat oleh anggota kelas secara otomatis diunggah ke folder Drive terpusat ini.</p>
                         
-                        <!-- Embedded Folder Drive View -->
                         <div class="border rounded-lg h-96 bg-gray-50 flex items-center justify-center">
                             <div class="text-center p-6">
                                 <i class="fa-brands fa-google-drive text-5xl text-green-600 mb-3"></i>
@@ -262,22 +259,18 @@
     <!-- JAVASCRIPT LOGIC                           -->
     <!-- ========================================== -->
     <script>
-        // Data State
         const VALID_CLASS_CODE = "INTEL2026";
         let currentUser = null;
         let base64Image = "";
         let quillFakta, quillCatatan;
 
-        // Inisialisasi Aplikasi saat Load
         document.addEventListener('DOMContentLoaded', () => {
             quillFakta = new Quill('#editorFakta', { theme: 'snow' });
             quillCatatan = new Quill('#editorCatatan', { theme: 'snow' });
 
-            // Sync Editor perubahan ke Live Preview
             quillFakta.on('text-change', updateLivePreview);
             quillCatatan.on('text-change', updateLivePreview);
 
-            // Event handler lampiran foto
             document.getElementById('fotoLampiran').addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (file) {
@@ -293,19 +286,19 @@
             updateLivePreview();
         });
 
-        // 1. Logika Auth & Sign Up (Gmail)
-           function toggleAuthView(view) {
-               const loginBox = document.getElementById('loginBox');
-               const signUpBox = document.getElementById('signUpBox');
-               
-               if (view === 'signup') {
-                   loginBox.classList.add('hidden');
-                   signUpBox.classList.remove('hidden');
-               } else {
-                   signUpBox.classList.add('hidden');
-                   loginBox.classList.remove('hidden');
-               }
-           }
+        // 1. Tampilan Switch Login / Sign Up
+        function toggleAuthView(view) {
+            const loginBox = document.getElementById('loginBox');
+            const signUpBox = document.getElementById('signUpBox');
+
+            if (view === 'signup') {
+                loginBox.classList.add('hidden');
+                signUpBox.classList.remove('hidden');
+            } else {
+                signUpBox.classList.add('hidden');
+                loginBox.classList.remove('hidden');
+            }
+        }
 
         function handleSignUp(e) {
             e.preventDefault();
@@ -327,7 +320,7 @@
             users.push({ name, email, password });
             localStorage.setItem('registeredUsers', JSON.stringify(users));
             alert("Pendaftaran berhasil! Silakan masuk dengan akun Anda.");
-            switchAuthTab('login');
+            toggleAuthView('login');
         }
 
         function handleLogin(e) {
@@ -346,12 +339,11 @@
             currentUser = user;
             document.getElementById('displayUserName').innerText = user.name;
             
-            // Pindah ke Tahap 2
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('classCodeSection').classList.remove('hidden');
         }
 
-        // 2. Logika Verifikasi Kode Kelas
+        // 2. Verifikasi Kode Kelas
         function handleClassCode(e) {
             e.preventDefault();
             const inputCode = document.getElementById('inputClassCode').value.trim().toUpperCase();
@@ -361,7 +353,6 @@
                 return;
             }
 
-            // Pindah ke Tahap 3 (Dashboard Utama)
             document.getElementById('classCodeSection').classList.add('hidden');
             document.getElementById('dashboardSection').classList.remove('hidden');
             updateLivePreview();
@@ -374,7 +365,7 @@
             document.getElementById('authSection').classList.remove('hidden');
         }
 
-        // 3. Logika Sub-Bagian Dashboard
+        // 3. Sub-Bagian Switch
         function switchSubSection(section) {
             if (section === 'generator') {
                 document.getElementById('subSectionGenerator').classList.remove('hidden');
@@ -396,20 +387,26 @@
             const tahun = document.getElementById('tahun').value || '...';
             const hal = document.getElementById('hal').value || '...';
             const nilai = document.getElementById('nilai').value || '...';
-            const userName = currentUser ? currentUser.name : 'Monteverdi Kaleb Pinondang Simarmata';
+            const userName = currentUser ? currentUser.name : 'Nama Pengguna';
             const faktaHtml = quillFakta ? quillFakta.root.innerHTML : '';
             const catatanHtml = quillCatatan ? quillCatatan.root.innerHTML : '';
 
             return `
                 <div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.3; color: black;">
+                    <!-- 2. Header RAHASIA Atas Tengah, Warna Hitam, Bold -->
                     <div style="text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 12pt;">RAHASIA</div>
+
+                    <!-- 3. Kop Surat Kiri dengan Garis Bawah Sepanjang Teks -->
                     <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #000000; display: inline-block; padding-bottom: 2px; margin-bottom: 18pt;">
                         SEKOLAH TINGGI INTELIJEN NEGARA<br>INTELIJEN TEKNOLOGI
                     </div>
                     <br><br>
+
+                    <!-- Judul Laporan -->
                     <div style="text-align: center; font-size: 12pt; font-weight: bold; text-decoration: underline; margin-bottom: 2pt;">LAPORAN INFORMASI</div>
                     <div style="text-align: center; font-size: 12pt; margin-top: 0; margin-bottom: 15pt;">Nomor: R / LI – ${noLaporan} / ${bulan} / ${tahun}</div>
                     
+                    <!-- 4. Metadata Ditengahkan -->
                     <table style="margin-left: auto; margin-right: auto; width: 85%; border-collapse: collapse;" border="0">
                         <tr>
                             <td style="width: 18%; vertical-align: top; padding: 2px 4px; font-size: 12pt;">Kepada</td>
@@ -438,13 +435,19 @@
                         </tr>
                     </table>
                     <br>
+
+                    <!-- 5. I. FAKTA-FAKTA tidak di-bold -->
                     <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">I. FAKTA-FAKTA</div>
                     <div style="margin-bottom: 12pt;">${faktaHtml}</div>
 
+                    <!-- 6. II. CATATAN tidak di-bold -->
                     <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">II. CATATAN</div>
                     <div style="margin-bottom: 12pt;">${catatanHtml}</div>
 
+                    <!-- 7. LAMPIRAN tidak di-bold -->
                     <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">LAMPIRAN</div>
+                    
+                    <!-- 8. Gambar Lampiran 5 cm x 6 cm -->
                     ${base64Image ? `<img src="${base64Image}" style="width: 5cm; height: 6cm; object-fit: cover;" />` : '<p>-</p>'}
                 </div>
             `;
@@ -454,7 +457,7 @@
             document.getElementById('previewContainer').innerHTML = buildDocumentHtml();
         }
 
-        // 5. Ekspor Dokumen
+        // 5. Generasi Dokumen Word & PDF
         function generateDocument(type) {
             const noLaporan = document.getElementById('noLaporan').value;
             const bulan = document.getElementById('bulan').value;
@@ -480,7 +483,6 @@
             }
         }
 
-        // 6. Simpan Langsung ke Google Drive Kelas
         function saveToGoogleDrive() {
             alert("Laporan berhasil dikirim dan diarsipkan secara otomatis ke Google Drive Kelas STIN!");
         }
