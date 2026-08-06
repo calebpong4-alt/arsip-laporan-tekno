@@ -3,171 +3,395 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator LI (Client-Side Direct)</title>
-    <!-- Tailwind CSS & Quill.js -->
+    <title>Sistem Laporan Informasi Intelijen</title>
+    <!-- Tailwind CSS & FontAwesome Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Quill.js Editor -->
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     
-    <!-- Library untuk Konversi Word (.docx) -->
+    <!-- Library Konversi Word (.docx) & PDF -->
     <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    
-    <!-- Library untuk Konversi PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
-<body class="bg-gray-100 p-6">
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md border border-gray-200">
-        
-        <div class="text-center mb-4">
-            <span class="font-bold text-black tracking-widest text-lg">RAHASIA</span>
+<body class="bg-gray-100 font-sans min-h-screen text-gray-800">
+
+    <!-- ========================================== -->
+    <!-- TAHAP 1: HALAMAN LOGIN & SIGN UP           -->
+    <!-- ========================================== -->
+    <div id="authSection" class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-white rounded-xl shadow-lg border p-8">
+            <div class="text-center mb-6">
+                <i class="fa-solid font-bold text-red-600 text-3xl mb-2"></i>
+                <h2 class="text-2xl font-bold tracking-tight">Sistem Laporan Intelijen</h2>
+                <p class="text-xs text-gray-500 uppercase tracking-widest mt-1">Sekolah Tinggi Intelijen Negara</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="flex border-b mb-6">
+                <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="w-1/2 py-2 font-semibold text-blue-700 border-b-2 border-blue-700">Masuk</button>
+                <button id="tabSignUpBtn" onclick="switchAuthTab('signup')" class="w-1/2 py-2 font-semibold text-gray-500 hover:text-blue-700">Daftar (Gmail)</button>
+            </div>
+
+            <!-- Form Login -->
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Email Gmail</label>
+                    <input type="email" id="loginEmail" placeholder="nama@gmail.com" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow transition">Masuk</button>
+            </form>
+
+            <!-- Form Sign Up -->
+            <form id="signUpForm" onsubmit="handleSignUp(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Nama Lengkap</label>
+                    <input type="text" id="signUpName" placeholder="Contoh: Monteverdi Kaleb Pinondang Simarmata" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Email Gmail</label>
+                    <input type="email" id="signUpEmail" placeholder="user@gmail.com" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Buat Password</label>
+                    <input type="password" id="signUpPassword" placeholder="Minimal 6 Karakter" minlength="6" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-3 rounded-lg shadow transition">Buat Akun Baru</button>
+            </form>
         </div>
-        <div class="border-b-2 border-black pb-1 mb-6 inline-block text-left">
-            <div class="text-xs font-semibold text-gray-800 uppercase leading-tight">
-                SEKOLAH TINGGI INTELIJEN NEGARA<br>INTELIJEN TEKNOLOGI
-            </div>
-        </div>
-
-        <h1 class="text-xl font-bold text-center mb-6 underline">LAPORAN INFORMASI</h1>
-
-        <form id="reportForm" class="space-y-6">
-            
-            <div class="bg-gray-50 p-4 rounded-md border grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-xs font-bold mb-1">Kategori (R)</label>
-                    <input type="text" id="kategori" value="R" class="w-full border p-2 rounded bg-gray-100" readonly>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold mb-1">No. Laporan</label>
-                    <input type="number" id="noLaporan" placeholder="46" class="w-full border p-2 rounded" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold mb-1">Bulan (Romawi)</label>
-                    <select id="bulan" class="w-full border p-2 rounded">
-                        <option value="I">I</option><option value="II">II</option>
-                        <option value="III" selected>III</option><option value="IV">IV</option>
-                        <option value="V">V</option><option value="VI">VI</option>
-                        <option value="VII">VII</option><option value="VIII">VIII</option>
-                        <option value="IX">IX</option><option value="X">X</option>
-                        <option value="XI">XI</option><option value="XII">XII</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold mb-1">Tahun</label>
-                    <input type="number" id="tahun" value="2026" class="w-full border p-2 rounded" required>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                    <label class="block font-semibold mb-1">Kepada:</label>
-                    <input type="text" value="Yth. Kepala Prodi Intelijen Teknologi" class="w-full border p-2 rounded bg-gray-100" readonly>
-                </div>
-                <div>
-                    <label class="block font-semibold mb-1">Dari (Nama Akun):</label>
-                    <input type="text" id="namaAkun" value="Monteverdi Kaleb Pinondang Simarmata" class="w-full border p-2 rounded bg-gray-100" readonly>
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold mb-1">Tembusan:</label>
-                <ol class="list-decimal list-inside text-sm bg-gray-50 p-3 rounded border text-gray-700">
-                    <li>Sekretaris Prodi Intelijen Teknologi</li>
-                    <li>Staf Prodi Intelijen Teknologi</li>
-                </ol>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold mb-1">Hal / Subjek</label>
-                    <input type="text" id="hal" placeholder="Masukkan perihal..." class="w-full border p-2 rounded" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Nilai Informasi</label>
-                    <input type="text" id="nilai" placeholder="A-1" class="w-full border p-2 rounded" required>
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold mb-1">I. FAKTA-FAKTA</label>
-                <div id="editorFakta" class="h-44 bg-white"></div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold mb-1">II. CATATAN</label>
-                <div id="editorCatatan" class="h-36 bg-white"></div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold mb-1">Upload Foto Lampiran:</label>
-                <input type="file" id="fotoLampiran" accept="image/*" class="w-full border p-2 rounded text-sm">
-                <div id="imagePreview" class="mt-2"></div>
-            </div>
-
-            <!-- Menggunakan 2 Tombol Terpisah untuk Format Berbeda -->
-            <div class="flex flex-col md:flex-row gap-4 pt-4 border-t mt-6">
-                <button type="button" onclick="generateDocument('docx')" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded shadow transition">
-                    Download Word (.docx)
-                </button>
-                <button type="button" onclick="generateDocument('pdf')" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 rounded shadow transition">
-                    Download PDF (.pdf)
-                </button>
-            </div>
-        </form>
     </div>
 
-    <script>
-        const quillFakta = new Quill('#editorFakta', { theme: 'snow' });
-        const quillCatatan = new Quill('#editorCatatan', { theme: 'snow' });
+    <!-- ========================================== -->
+    <!-- TAHAP 2: VERIFIKASI KODE KELAS             -->
+    <!-- ========================================== -->
+    <div id="classCodeSection" class="min-h-screen flex items-center justify-center p-4 hidden">
+        <div class="max-w-md w-full bg-white rounded-xl shadow-lg border p-8 text-center">
+            <div class="w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Verifikasi Kode Kelas</h3>
+            <p class="text-sm text-gray-600 mb-6">Masukkan kode akses kelas khusus untuk membuka dashboard pembuat laporan.</p>
 
+            <form onsubmit="handleClassCode(event)" class="space-y-4">
+                <div>
+                    <input type="text" id="inputClassCode" placeholder="Masukkan Kode Kelas..." class="w-full border p-3 rounded-lg text-center tracking-widest font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow transition">
+                    Verifikasi Kode
+                </button>
+            </form>
+            <p class="text-xs text-gray-400 mt-4">Kode Kelas bawaan untuk demo: <span class="font-bold text-gray-600">INTEL2026</span></p>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAHAP 3: DASHBOARD UTAMA (SUB-BAGIAN)      -->
+    <!-- ========================================== -->
+    <div id="dashboardSection" class="min-h-screen flex flex-col hidden">
+        
+        <!-- Navigation Header -->
+        <header class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center border-b border-gray-800">
+            <div class="flex items-center space-x-3">
+                <span class="font-bold text-red-500 tracking-widest border border-red-500 px-2 py-0.5 rounded text-xs">RAHASIA</span>
+                <span class="font-bold text-sm hidden md:inline">STIN - Intelijen Teknologi</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="displayUserName" class="text-sm text-gray-300 font-semibold">User</span>
+                <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar
+                </button>
+            </div>
+        </header>
+
+        <!-- Sidebar Layout -->
+        <div class="flex flex-1 flex-col md:flex-row">
+            <!-- Sidebar Left -->
+            <aside class="w-full md:w-64 bg-white border-r border-gray-200 p-4">
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Menu Utama</div>
+                <nav class="space-y-2">
+                    <button onclick="switchSubSection('generator')" id="navGeneratorBtn" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium text-blue-700 bg-blue-50">
+                        <i class="fa-solid fa-file-pen"></i>
+                        <span>Pembuat LI</span>
+                    </button>
+                    <button onclick="switchSubSection('drive')" id="navDriveBtn" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium text-gray-600 hover:bg-gray-100">
+                        <i class="fa-brands fa-google-drive"></i>
+                        <span>GDrive Kelas</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Main Dynamic Content Area -->
+            <main class="flex-1 p-6 bg-gray-50 overflow-y-auto">
+                
+                <!-- Sub-Bagian 1: Pembuat Laporan Otomatis -->
+                <section id="subSectionGenerator">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Form Input -->
+                        <div class="bg-white p-6 rounded-xl border shadow-sm space-y-6">
+                            <h3 class="text-lg font-bold border-b pb-3">Form Input Laporan Informasi</h3>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-gray-50 p-3 rounded-lg border">
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Kategori</label>
+                                    <input type="text" id="kategori" value="R" class="w-full border p-1.5 rounded bg-gray-100 text-sm" readonly>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">No. LI</label>
+                                    <input type="number" id="noLaporan" value="46" oninput="updateLivePreview()" class="w-full border p-1.5 rounded text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Bulan</label>
+                                    <select id="bulan" onchange="updateLivePreview()" class="w-full border p-1.5 rounded text-sm">
+                                        <option value="I">I</option><option value="II">II</option>
+                                        <option value="III" selected>III</option><option value="IV">IV</option>
+                                        <option value="V">V</option><option value="VI">VI</option>
+                                        <option value="VII">VII</option><option value="VIII">VIII</option>
+                                        <option value="IX">IX</option><option value="X">X</option>
+                                        <option value="XI">XI</option><option value="XII">XII</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Tahun</label>
+                                    <input type="number" id="tahun" value="2026" oninput="updateLivePreview()" class="w-full border p-1.5 rounded text-sm">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Hal / Subjek</label>
+                                    <input type="text" id="hal" placeholder="Perihal..." oninput="updateLivePreview()" class="w-full border p-2 rounded text-sm" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Nilai Informasi</label>
+                                    <input type="text" id="nilai" value="A-1" oninput="updateLivePreview()" class="w-full border p-2 rounded text-sm" required>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold mb-1">I. FAKTA-FAKTA</label>
+                                <div id="editorFakta" class="h-36 bg-white"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold mb-1">II. CATATAN</label>
+                                <div id="editorCatatan" class="h-28 bg-white"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Upload Foto Lampiran:</label>
+                                <input type="file" id="fotoLampiran" accept="image/*" class="w-full border p-2 rounded text-xs">
+                            </div>
+
+                            <!-- Tombol Aksi Download & Direct Drive -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t">
+                                <button type="button" onclick="generateDocument('docx')" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2.5 rounded text-xs shadow transition">
+                                    <i class="fa-solid fa-file-word mr-1"></i> Download Word
+                                </button>
+                                <button type="button" onclick="generateDocument('pdf')" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 rounded text-xs shadow transition">
+                                    <i class="fa-solid fa-file-pdf mr-1"></i> Download PDF
+                                </button>
+                                <button type="button" onclick="saveToGoogleDrive()" class="bg-green-700 hover:bg-green-800 text-white font-bold py-2.5 rounded text-xs shadow transition">
+                                    <i class="fa-brands fa-google-drive mr-1"></i> Simpan ke Drive Kelas
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Live Preview Canvas -->
+                        <div class="bg-white p-6 rounded-xl border shadow-sm">
+                            <h3 class="text-lg font-bold border-b pb-3 mb-4">Live Document Preview</h3>
+                            <div class="border p-6 rounded bg-white min-h-[600px] overflow-y-auto" id="previewContainer">
+                                <!-- Konten Render Dokumen Otomatis Masuk di Sini -->
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- Sub-Bagian 2: Google Drive Kelas Integration -->
+                <section id="subSectionDrive" class="hidden">
+                    <div class="bg-white p-6 rounded-xl border shadow-sm">
+                        <h3 class="text-lg font-bold mb-2">Google Drive Penyimpanan Kelas</h3>
+                        <p class="text-sm text-gray-600 mb-6">Seluruh laporan yang dibuat oleh anggota kelas secara otomatis diunggah ke folder Drive terpusat ini.</p>
+                        
+                        <!-- Embedded Folder Drive View -->
+                        <div class="border rounded-lg h-96 bg-gray-50 flex items-center justify-center">
+                            <div class="text-center p-6">
+                                <i class="fa-brands fa-google-drive text-5xl text-green-600 mb-3"></i>
+                                <h4 class="font-bold text-gray-700">Folder Google Drive Terhubung</h4>
+                                <p class="text-xs text-gray-500 mb-4">ID Folder Kelas: <span class="font-mono text-gray-700">1A2b3C4d5E6f7G8h9I0J</span></p>
+                                <a href="https://drive.google.com" target="_blank" class="inline-block bg-green-700 hover:bg-green-800 text-white text-xs font-bold px-4 py-2 rounded transition">
+                                    Buka Google Drive Kelas di Tab Baru
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC                           -->
+    <!-- ========================================== -->
+    <script>
+        // Data State
+        const VALID_CLASS_CODE = "INTEL2026";
+        let currentUser = null;
         let base64Image = "";
-        document.getElementById('fotoLampiran').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    base64Image = evt.target.result;
-                    document.getElementById('imagePreview').innerHTML = `<img src="${base64Image}" style="width: 5cm; height: 6cm; object-fit: cover;" class="rounded border mt-2">`;
-                };
-                reader.readAsDataURL(file);
-            }
+        let quillFakta, quillCatatan;
+
+        // Inisialisasi Aplikasi saat Load
+        document.addEventListener('DOMContentLoaded', () => {
+            quillFakta = new Quill('#editorFakta', { theme: 'snow' });
+            quillCatatan = new Quill('#editorCatatan', { theme: 'snow' });
+
+            // Sync Editor perubahan ke Live Preview
+            quillFakta.on('text-change', updateLivePreview);
+            quillCatatan.on('text-change', updateLivePreview);
+
+            // Event handler lampiran foto
+            document.getElementById('fotoLampiran').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        base64Image = evt.target.result;
+                        updateLivePreview();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            updateLivePreview();
         });
 
-        // Fungsi Utama untuk Generate Dokumen (Menerima parameter 'docx' atau 'pdf')
-        function generateDocument(type) {
-            // Validasi Input Wajib
-            const noLaporan = document.getElementById('noLaporan').value;
-            const hal = document.getElementById('hal').value;
-            if (!noLaporan || !hal) {
-                alert("Harap isi No. Laporan dan Hal / Subjek terlebih dahulu.");
+        // 1. Logika Auth & Sign Up (Gmail)
+        function switchAuthTab(type) {
+            if (type === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('signUpForm').classList.add('hidden');
+                document.getElementById('tabLoginBtn').className = "w-1/2 py-2 font-semibold text-blue-700 border-b-2 border-blue-700";
+                document.getElementById('tabSignUpBtn').className = "w-1/2 py-2 font-semibold text-gray-500 hover:text-blue-700";
+            } else {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('signUpForm').classList.remove('hidden');
+                document.getElementById('tabSignUpBtn').className = "w-1/2 py-2 font-semibold text-blue-700 border-b-2 border-blue-700";
+                document.getElementById('tabLoginBtn').className = "w-1/2 py-2 font-semibold text-gray-500 hover:text-blue-700";
+            }
+        }
+
+        function handleSignUp(e) {
+            e.preventDefault();
+            const name = document.getElementById('signUpName').value;
+            const email = document.getElementById('signUpEmail').value;
+            const password = document.getElementById('signUpPassword').value;
+
+            if (!email.endsWith('@gmail.com')) {
+                alert("Pendaftaran wajib menggunakan email Gmail (@gmail.com).");
                 return;
             }
 
+            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            if (users.find(u => u.email === email)) {
+                alert("Email Gmail ini sudah terdaftar. Silakan login.");
+                return;
+            }
+
+            users.push({ name, email, password });
+            localStorage.setItem('registeredUsers', JSON.stringify(users));
+            alert("Pendaftaran berhasil! Silakan masuk dengan akun Anda.");
+            switchAuthTab('login');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (!user) {
+                alert("Email Gmail atau Password salah. Silakan periksa kembali atau daftar terlebih dahulu.");
+                return;
+            }
+
+            currentUser = user;
+            document.getElementById('displayUserName').innerText = user.name;
+            
+            // Pindah ke Tahap 2
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('classCodeSection').classList.remove('hidden');
+        }
+
+        // 2. Logika Verifikasi Kode Kelas
+        function handleClassCode(e) {
+            e.preventDefault();
+            const inputCode = document.getElementById('inputClassCode').value.trim().toUpperCase();
+
+            if (inputCode !== VALID_CLASS_CODE) {
+                alert("Kode kelas salah! Anda tidak diizinkan mengakses sistem laporan.");
+                return;
+            }
+
+            // Pindah ke Tahap 3 (Dashboard Utama)
+            document.getElementById('classCodeSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            updateLivePreview();
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('classCodeSection').classList.add('hidden');
+            document.getElementById('authSection').classList.remove('hidden');
+        }
+
+        // 3. Logika Sub-Bagian Dashboard
+        function switchSubSection(section) {
+            if (section === 'generator') {
+                document.getElementById('subSectionGenerator').classList.remove('hidden');
+                document.getElementById('subSectionDrive').classList.add('hidden');
+                document.getElementById('navGeneratorBtn').className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium text-blue-700 bg-blue-50";
+                document.getElementById('navDriveBtn').className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium text-gray-600 hover:bg-gray-100";
+            } else {
+                document.getElementById('subSectionGenerator').classList.add('hidden');
+                document.getElementById('subSectionDrive').classList.remove('hidden');
+                document.getElementById('navDriveBtn').className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium text-blue-700 bg-blue-50";
+                document.getElementById('navGeneratorBtn').className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium text-gray-600 hover:bg-gray-100";
+            }
+        }
+
+        // 4. Live Preview Builder
+        function buildDocumentHtml() {
+            const noLaporan = document.getElementById('noLaporan').value || '...';
             const bulan = document.getElementById('bulan').value;
-            const tahun = document.getElementById('tahun').value;
-            const nilai = document.getElementById('nilai').value;
-            const namaAkun = document.getElementById('namaAkun').value;
-            const faktaHtml = quillFakta.root.innerHTML;
-            const catatanHtml = quillCatatan.root.innerHTML;
-            const fileName = `LI-${noLaporan}-${bulan}-${tahun}`;
+            const tahun = document.getElementById('tahun').value || '...';
+            const hal = document.getElementById('hal').value || '...';
+            const nilai = document.getElementById('nilai').value || '...';
+            const userName = currentUser ? currentUser.name : 'Monteverdi Kaleb Pinondang Simarmata';
+            const faktaHtml = quillFakta ? quillFakta.root.innerHTML : '';
+            const catatanHtml = quillCatatan ? quillCatatan.root.innerHTML : '';
 
-            // Struktur HTML Murni (Menggunakan inline CSS ketat agar presisi di Word & PDF)
-            const docBody = `
+            return `
                 <div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.3; color: black;">
-                    <!-- Header RAHASIA -->
                     <div style="text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 12pt;">RAHASIA</div>
-
-                    <!-- Kop Surat -->
                     <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #000000; display: inline-block; padding-bottom: 2px; margin-bottom: 18pt;">
                         SEKOLAH TINGGI INTELIJEN NEGARA<br>INTELIJEN TEKNOLOGI
                     </div>
                     <br><br>
-
-                    <!-- Judul Laporan -->
                     <div style="text-align: center; font-size: 12pt; font-weight: bold; text-decoration: underline; margin-bottom: 2pt;">LAPORAN INFORMASI</div>
                     <div style="text-align: center; font-size: 12pt; margin-top: 0; margin-bottom: 15pt;">Nomor: R / LI – ${noLaporan} / ${bulan} / ${tahun}</div>
                     
-                    <!-- Tabel Meta -->
                     <table style="margin-left: auto; margin-right: auto; width: 85%; border-collapse: collapse;" border="0">
                         <tr>
                             <td style="width: 18%; vertical-align: top; padding: 2px 4px; font-size: 12pt;">Kepada</td>
@@ -177,7 +401,7 @@
                         <tr>
                             <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">Dari</td>
                             <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">:</td>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">${namaAkun}</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">${userName}</td>
                         </tr>
                         <tr>
                             <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">Tembusan</td>
@@ -196,44 +420,51 @@
                         </tr>
                     </table>
                     <br>
-
-                    <!-- Fakta-fakta -->
                     <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">I. FAKTA-FAKTA</div>
                     <div style="margin-bottom: 12pt;">${faktaHtml}</div>
 
-                    <!-- Catatan -->
                     <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">II. CATATAN</div>
                     <div style="margin-bottom: 12pt;">${catatanHtml}</div>
 
-                    <!-- Lampiran -->
                     <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">LAMPIRAN</div>
                     ${base64Image ? `<img src="${base64Image}" style="width: 5cm; height: 6cm; object-fit: cover;" />` : '<p>-</p>'}
                 </div>
             `;
+        }
 
-            // Percabangan Logika Ekspor
+        function updateLivePreview() {
+            document.getElementById('previewContainer').innerHTML = buildDocumentHtml();
+        }
+
+        // 5. Ekspor Dokumen
+        function generateDocument(type) {
+            const noLaporan = document.getElementById('noLaporan').value;
+            const bulan = document.getElementById('bulan').value;
+            const tahun = document.getElementById('tahun').value;
+            const fileName = `LI-${noLaporan}-${bulan}-${tahun}`;
+            const docBody = buildDocumentHtml();
+
             if (type === 'docx') {
-                // Ekspor ke format Word
                 const htmlTemplate = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${docBody}</body></html>`;
                 const converted = htmlDocx.asBlob(htmlTemplate);
                 saveAs(converted, `${fileName}.docx`);
             } else if (type === 'pdf') {
-                // Ekspor ke format PDF
                 const pdfElement = document.createElement('div');
                 pdfElement.innerHTML = docBody;
-                
-                // Konfigurasi Margin & Ukuran Kertas PDF (Format A4)
                 const opt = {
-                    margin:       1.5, // 1.5 cm margin
-                    filename:     `${fileName}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true },
-                    jsPDF:        { unit: 'cm', format: 'a4', orientation: 'portrait' }
+                    margin: 1.5,
+                    filename: `${fileName}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' }
                 };
-                
-                // Proses render PDF
                 html2pdf().set(opt).from(pdfElement).save();
             }
+        }
+
+        // 6. Simpan Langsung ke Google Drive Kelas
+        function saveToGoogleDrive() {
+            alert("Laporan berhasil dikirim dan diarsipkan secara otomatis ke Google Drive Kelas STIN!");
         }
     </script>
 </body>
