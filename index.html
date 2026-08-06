@@ -96,7 +96,7 @@
                 <i class="fa-solid fa-key"></i>
             </div>
             <h3 class="text-xl font-bold mb-2">Verifikasi Kode Kelas</h3>
-            <p class="text-sm text-gray-600 mb-6">Masukkan token kelas Anda untuk mengakses sistem dan Google Drive kelas masing-masing.</p>
+            <p class="text-sm text-gray-600 mb-6">masukkan token kelas anda</p>
 
             <form onsubmit="handleClassCode(event)" class="space-y-4">
                 <div>
@@ -106,12 +106,6 @@
                     Verifikasi Token
                 </button>
             </form>
-            <div class="text-xs text-gray-400 mt-4 text-left border-t pt-3 space-y-1">
-                <p class="font-semibold text-gray-500">Daftar Token Kelas:</p>
-                <p>• Tingkat IV: <span class="font-mono font-bold text-gray-700">HORI20N2024</span></p>
-                <p>• Tingkat III: <span class="font-mono font-bold text-gray-700">VI21ON2025</span></p>
-                <p>• Tingkat II: <span class="font-mono font-bold text-gray-700">TEKNO2026</span></p>
-            </div>
         </div>
     </div>
 
@@ -383,7 +377,7 @@
             const inputCode = document.getElementById('inputClassCode').value.trim().toUpperCase();
 
             if (!CLASS_TOKENS[inputCode]) {
-                alert("Kode/Token kelas salah! Silakan masukkan salah satu dari 3 token kelas yang valid.");
+                alert("Kode/Token kelas salah! Silakan masukkan token kelas yang valid.");
                 return;
             }
 
