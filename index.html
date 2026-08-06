@@ -96,17 +96,22 @@
                 <i class="fa-solid fa-key"></i>
             </div>
             <h3 class="text-xl font-bold mb-2">Verifikasi Kode Kelas</h3>
-            <p class="text-sm text-gray-600 mb-6">Masukkan kode akses kelas khusus untuk membuka dashboard pembuat laporan.</p>
+            <p class="text-sm text-gray-600 mb-6">Masukkan token kelas Anda untuk mengakses sistem dan Google Drive kelas masing-masing.</p>
 
             <form onsubmit="handleClassCode(event)" class="space-y-4">
                 <div>
-                    <input type="text" id="inputClassCode" placeholder="Masukkan Kode Kelas..." class="w-full border p-3 rounded-lg text-center tracking-widest font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    <input type="text" id="inputClassCode" placeholder="Masukkan Token Kelas..." class="w-full border p-3 rounded-lg text-center tracking-widest font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" required>
                 </div>
                 <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow transition">
-                    Verifikasi Kode
+                    Verifikasi Token
                 </button>
             </form>
-            <p class="text-xs text-gray-400 mt-4">Kode Kelas bawaan untuk demo: <span class="font-bold text-gray-600">INTEL2026</span></p>
+            <div class="text-xs text-gray-400 mt-4 text-left border-t pt-3 space-y-1">
+                <p class="font-semibold text-gray-500">Daftar Token Kelas:</p>
+                <p>• Tingkat IV: <span class="font-mono font-bold text-gray-700">HORI20N2024</span></p>
+                <p>• Tingkat III: <span class="font-mono font-bold text-gray-700">VI21ON2025</span></p>
+                <p>• Tingkat II: <span class="font-mono font-bold text-gray-700">TEKNO2026</span></p>
+            </div>
         </div>
     </div>
 
@@ -120,6 +125,9 @@
             <div class="flex items-center space-x-3">
                 <span class="font-bold text-red-500 tracking-widest border border-red-500 px-2 py-0.5 rounded text-xs">RAHASIA</span>
                 <span class="font-bold text-sm hidden md:inline">ARSIP TEKNOLOGI</span>
+                <span id="displayClassBadge" class="bg-blue-800 text-blue-200 text-xs font-bold px-2.5 py-1 rounded-full uppercase">
+                    TEKNOLOGI
+                </span>
             </div>
             <div class="flex items-center space-x-4">
                 <span id="displayUserName" class="text-sm text-gray-300 font-semibold">Pengguna</span>
@@ -155,7 +163,10 @@
                         
                         <!-- Form Input Laporan -->
                         <div class="bg-white p-6 rounded-xl border shadow-sm space-y-6">
-                            <h3 class="text-lg font-bold border-b pb-3">Form Input Laporan Informasi</h3>
+                            <div class="flex justify-between items-center border-b pb-3">
+                                <h3 class="text-lg font-bold">Form Input Laporan Informasi</h3>
+                                <span id="formClassName" class="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200"></span>
+                            </div>
 
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-gray-50 p-3 rounded-lg border">
                                 <div>
@@ -232,18 +243,18 @@
                     </div>
                 </section>
 
-                <!-- Sub-Bagian 2: Google Drive Kelas -->
+                <!-- Sub-Bagian 2: Google Drive Kelas (Dinamis berdasarkan Kelas) -->
                 <section id="subSectionDrive" class="hidden">
                     <div class="bg-white p-6 rounded-xl border shadow-sm">
-                        <h3 class="text-lg font-bold mb-2">Google Drive Penyimpanan Kelas</h3>
-                        <p class="text-sm text-gray-600 mb-6">Seluruh laporan yang dibuat oleh anggota kelas secara otomatis diunggah ke folder Drive terpusat ini.</p>
+                        <h3 class="text-lg font-bold mb-1">Google Drive Penyimpanan Kelas</h3>
+                        <p id="driveClassSubtitle" class="text-sm font-semibold text-blue-700 mb-6"></p>
                         
                         <div class="border rounded-lg h-96 bg-gray-50 flex items-center justify-center">
                             <div class="text-center p-6">
                                 <i class="fa-brands fa-google-drive text-5xl text-green-600 mb-3"></i>
-                                <h4 class="font-bold text-gray-700">Folder Google Drive Terhubung</h4>
-                                <p class="text-xs text-gray-500 mb-4">ID Folder Kelas: <span class="font-mono text-gray-700">1A2b3C4d5E6f7G8h9I0J</span></p>
-                                <a href="https://drive.google.com" target="_blank" class="inline-block bg-green-700 hover:bg-green-800 text-white text-xs font-bold px-4 py-2 rounded transition">
+                                <h4 id="driveTitle" class="font-bold text-gray-700 text-lg"></h4>
+                                <p class="text-xs text-gray-500 mb-4">ID Folder Khusus: <span id="driveFolderId" class="font-mono text-gray-700 font-bold"></span></p>
+                                <a id="driveLinkBtn" href="#" target="_blank" class="inline-block bg-green-700 hover:bg-green-800 text-white text-xs font-bold px-4 py-2.5 rounded transition">
                                     Buka Google Drive Kelas di Tab Baru
                                 </a>
                             </div>
@@ -259,8 +270,27 @@
     <!-- JAVASCRIPT LOGIC                           -->
     <!-- ========================================== -->
     <script>
-        const VALID_CLASS_CODE = "INTEL2026";
+        // Data Rincian 3 Token Kelas
+        const CLASS_TOKENS = {
+            "HORI20N2024": {
+                name: "TEKNOLOGI TINGKAT IV",
+                folderId: "DRIVE-TEK-TK4-2024",
+                driveUrl: "https://drive.google.com/drive/folders/1_Tingkat4_Hori20n2024"
+            },
+            "VI21ON2025": {
+                name: "TEKNOLOGI TINGKAT III",
+                folderId: "DRIVE-TEK-TK3-2025",
+                driveUrl: "https://drive.google.com/drive/folders/2_Tingkat3_Vi21on2025"
+            },
+            "TEKNO2026": {
+                name: "TEKNOLOGI TINGKAT II",
+                folderId: "DRIVE-TEK-TK2-2026",
+                driveUrl: "https://drive.google.com/drive/folders/3_Tingkat2_Tekno2026"
+            }
+        };
+
         let currentUser = null;
+        let currentClass = null;
         let base64Image = "";
         let quillFakta, quillCatatan;
 
@@ -286,7 +316,7 @@
             updateLivePreview();
         });
 
-        // 1. Tampilan Switch Login / Sign Up dengan Reset Form Otomatis
+        // 1. Switch Login / Sign Up dengan Reset Form
         function toggleAuthView(view) {
             const loginBox = document.getElementById('loginBox');
             const signUpBox = document.getElementById('signUpBox');
@@ -294,11 +324,11 @@
             const signUpForm = document.getElementById('signUpForm');
 
             if (view === 'signup') {
-                loginForm.reset(); // Kosongkan input login
+                loginForm.reset();
                 loginBox.classList.add('hidden');
                 signUpBox.classList.remove('hidden');
             } else {
-                signUpForm.reset(); // Kosongkan input sign up
+                signUpForm.reset();
                 signUpBox.classList.add('hidden');
                 loginBox.classList.remove('hidden');
             }
@@ -347,15 +377,25 @@
             document.getElementById('classCodeSection').classList.remove('hidden');
         }
 
-        // 2. Verifikasi Kode Kelas
+        // 2. Verifikasi Kode Kelas (Validasi 3 Token Khusus)
         function handleClassCode(e) {
             e.preventDefault();
             const inputCode = document.getElementById('inputClassCode').value.trim().toUpperCase();
 
-            if (inputCode !== VALID_CLASS_CODE) {
-                alert("Kode kelas salah! Anda tidak diizinkan mengakses sistem laporan.");
+            if (!CLASS_TOKENS[inputCode]) {
+                alert("Kode/Token kelas salah! Silakan masukkan salah satu dari 3 token kelas yang valid.");
                 return;
             }
+
+            currentClass = CLASS_TOKENS[inputCode];
+
+            // Set UI Elemen Sesuai Kelas
+            document.getElementById('displayClassBadge').innerText = currentClass.name;
+            document.getElementById('formClassName').innerText = currentClass.name;
+            document.getElementById('driveClassSubtitle').innerText = `Folder Terpusat untuk ${currentClass.name}`;
+            document.getElementById('driveTitle').innerText = `Folder Google Drive: ${currentClass.name}`;
+            document.getElementById('driveFolderId').innerText = currentClass.folderId;
+            document.getElementById('driveLinkBtn').href = currentClass.driveUrl;
 
             document.getElementById('classCodeSection').classList.add('hidden');
             document.getElementById('dashboardSection').classList.remove('hidden');
@@ -364,16 +404,17 @@
 
         function handleLogout() {
             currentUser = null;
+            currentClass = null;
             document.getElementById('dashboardSection').classList.add('hidden');
             document.getElementById('classCodeSection').classList.add('hidden');
             document.getElementById('authSection').classList.remove('hidden');
             
-            // Kosongkan form saat logout
             document.getElementById('loginForm').reset();
             document.getElementById('signUpForm').reset();
+            document.getElementById('inputClassCode').value = '';
         }
 
-        // 3. Sub-Bagian Switch
+        // 3. Switch Sub-Bagian Dashboard
         function switchSubSection(section) {
             if (section === 'generator') {
                 document.getElementById('subSectionGenerator').classList.remove('hidden');
@@ -484,7 +525,9 @@
         }
 
         function saveToGoogleDrive() {
-            alert("Laporan berhasil dikirim dan diarsipkan secara otomatis ke Google Drive Kelas STIN!");
+            if (currentClass) {
+                alert(`Laporan berhasil dikirim dan diarsipkan secara otomatis ke Google Drive ${currentClass.name}!`);
+            }
         }
     </script>
 </body>
