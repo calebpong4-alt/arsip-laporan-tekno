@@ -25,7 +25,6 @@
     <div id="authSection" class="min-h-screen flex items-center justify-center p-4">
         <div class="max-w-md w-full bg-white rounded-xl shadow-lg border p-8">
             
-            <!-- Header ARSIP TEKNOLOGI -->
             <div class="text-center mb-8">
                 <h2 class="text-2xl font-bold tracking-tight text-gray-900">ARSIP TEKNOLOGI</h2>
             </div>
@@ -35,18 +34,17 @@
                 <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Email Gmail</label>
-                        <input type="email" id="loginEmail" placeholder="nama@gmail.com" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        <input type="email" id="loginEmail" placeholder="nama@gmail.com" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" required>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Password</label>
-                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" required>
                     </div>
                     <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow transition">
                         Masuk
                     </button>
                 </form>
 
-                <!-- Tautan ke Pendaftaran -->
                 <p class="text-center text-sm text-gray-600 mt-6">
                     Belum punya akun? 
                     <button type="button" onclick="toggleAuthView('signup')" class="text-blue-700 font-semibold underline hover:text-blue-800">
@@ -60,22 +58,21 @@
                 <form id="signUpForm" onsubmit="handleSignUp(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Nama Lengkap</label>
-                        <input type="text" id="signUpName" placeholder="Contoh: Nama Lengkap" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        <input type="text" id="signUpName" placeholder="Contoh: Nama Lengkap" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" required>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Email Gmail</label>
-                        <input type="email" id="signUpEmail" placeholder="user@gmail.com" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        <input type="email" id="signUpEmail" placeholder="user@gmail.com" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" required>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Buat Password</label>
-                        <input type="password" id="signUpPassword" placeholder="Minimal 6 Karakter" minlength="6" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        <input type="password" id="signUpPassword" placeholder="Minimal 6 Karakter" minlength="6" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" required>
                     </div>
                     <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-3 rounded-lg shadow transition">
                         Buat Akun Baru
                     </button>
                 </form>
 
-                <!-- Tautan Kembali ke Login -->
                 <p class="text-center text-sm text-gray-600 mt-6">
                     Sudah punya akun? 
                     <button type="button" onclick="toggleAuthView('login')" class="text-blue-700 font-semibold underline hover:text-blue-800">
@@ -100,7 +97,7 @@
 
             <form onsubmit="handleClassCode(event)" class="space-y-4">
                 <div>
-                    <input type="text" id="inputClassCode" placeholder="Masukkan Token Kelas..." class="w-full border p-3 rounded-lg text-center tracking-widest font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    <input type="text" id="inputClassCode" placeholder="Masukkan Token Kelas..." class="w-full border p-3 rounded-lg text-center tracking-widest font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" required>
                 </div>
                 <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow transition">
                     Verifikasi Token
@@ -114,7 +111,6 @@
     <!-- ========================================== -->
     <div id="dashboardSection" class="min-h-screen flex flex-col hidden">
         
-        <!-- Navigation Header -->
         <header class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center border-b border-gray-800">
             <div class="flex items-center space-x-3">
                 <span class="font-bold text-red-500 tracking-widest border border-red-500 px-2 py-0.5 rounded text-xs">RAHASIA</span>
@@ -131,9 +127,7 @@
             </div>
         </header>
 
-        <!-- Sidebar & Main Content -->
         <div class="flex flex-1 flex-col md:flex-row">
-            <!-- Sidebar Left -->
             <aside class="w-full md:w-64 bg-white border-r border-gray-200 p-4">
                 <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Menu Utama</div>
                 <nav class="space-y-2">
@@ -148,10 +142,8 @@
                 </nav>
             </aside>
 
-            <!-- Dynamic Workspace -->
             <main class="flex-1 p-6 bg-gray-50 overflow-y-auto">
                 
-                <!-- Sub-Bagian 1: Pembuat Laporan -->
                 <section id="subSectionGenerator">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         
@@ -162,18 +154,19 @@
                                 <span id="formClassName" class="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200"></span>
                             </div>
 
+                            <!-- Poin 4: Efek Shadow pada Input Data -->
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-gray-50 p-3 rounded-lg border">
                                 <div>
                                     <label class="block text-xs font-bold mb-1">Kategori</label>
-                                    <input type="text" id="kategori" value="R" class="w-full border p-1.5 rounded bg-gray-100 text-sm" readonly>
+                                    <input type="text" id="kategori" value="R" class="w-full border p-1.5 rounded bg-gray-100 text-sm shadow-sm font-semibold" readonly>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold mb-1">No. LI</label>
-                                    <input type="number" id="noLaporan" value="46" oninput="updateLivePreview()" class="w-full border p-1.5 rounded text-sm">
+                                    <input type="number" id="noLaporan" value="46" class="w-full border p-1.5 rounded text-sm shadow-sm">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold mb-1">Bulan</label>
-                                    <select id="bulan" onchange="updateLivePreview()" class="w-full border p-1.5 rounded text-sm">
+                                    <select id="bulan" class="w-full border p-1.5 rounded text-sm shadow-sm bg-white">
                                         <option value="I">I</option><option value="II">II</option>
                                         <option value="III" selected>III</option><option value="IV">IV</option>
                                         <option value="V">V</option><option value="VI">VI</option>
@@ -184,21 +177,22 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold mb-1">Tahun</label>
-                                    <input type="number" id="tahun" value="2026" oninput="updateLivePreview()" class="w-full border p-1.5 rounded text-sm">
+                                    <input type="number" id="tahun" value="2026" class="w-full border p-1.5 rounded text-sm shadow-sm">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-bold mb-1">Hal / Subjek</label>
-                                    <input type="text" id="hal" placeholder="Perihal..." oninput="updateLivePreview()" class="w-full border p-2 rounded text-sm" required>
+                                    <input type="text" id="hal" placeholder="Perihal..." class="w-full border p-2 rounded text-sm shadow-sm" required>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold mb-1">Nilai Informasi</label>
-                                    <input type="text" id="nilai" value="A-1" oninput="updateLivePreview()" class="w-full border p-2 rounded text-sm" required>
+                                    <input type="text" id="nilai" value="A-1" class="w-full border p-2 rounded text-sm shadow-sm" required>
                                 </div>
                             </div>
 
+                            <!-- Poin 5: Quill Editor dengan Opsi Poin Lengkap -->
                             <div>
                                 <label class="block text-xs font-bold mb-1">I. FAKTA-FAKTA</label>
                                 <div id="editorFakta" class="h-36 bg-white"></div>
@@ -211,7 +205,15 @@
 
                             <div>
                                 <label class="block text-xs font-bold mb-1">Upload Foto Lampiran:</label>
-                                <input type="file" id="fotoLampiran" accept="image/*" class="w-full border p-2 rounded text-xs">
+                                <input type="file" id="fotoLampiran" accept="image/*" class="w-full border p-2 rounded text-xs bg-white shadow-sm">
+                            </div>
+
+                            <!-- Poin 1: Tombol Tambahan Manual Pratinjau Dokumen -->
+                            <div class="pt-2">
+                                <button type="button" onclick="updateLivePreview()" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2.5 rounded text-xs shadow transition flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-eye"></i>
+                                    <span>Pratinjau Dokumen</span>
+                                </button>
                             </div>
 
                             <!-- Tombol Download & Drive -->
@@ -228,16 +230,18 @@
                             </div>
                         </div>
 
-                        <!-- Live Preview Canvas -->
+                        <!-- Preview Canvas -->
                         <div class="bg-white p-6 rounded-xl border shadow-sm">
-                            <h3 class="text-lg font-bold border-b pb-3 mb-4">Live Document Preview</h3>
+                            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                                <h3 class="text-lg font-bold">Document Preview</h3>
+                                <span class="text-xs text-gray-500">Klik "Pratinjau Dokumen" untuk memperbarui</span>
+                            </div>
                             <div class="border p-6 rounded bg-white min-h-[600px] overflow-y-auto" id="previewContainer"></div>
                         </div>
 
                     </div>
                 </section>
 
-                <!-- Sub-Bagian 2: Google Drive Kelas (Dinamis berdasarkan Kelas) -->
                 <section id="subSectionDrive" class="hidden">
                     <div class="bg-white p-6 rounded-xl border shadow-sm">
                         <h3 class="text-lg font-bold mb-1">Google Drive Penyimpanan Kelas</h3>
@@ -264,7 +268,6 @@
     <!-- JAVASCRIPT LOGIC                           -->
     <!-- ========================================== -->
     <script>
-        // Data Rincian 3 Token Kelas
         const CLASS_TOKENS = {
             "HORI20N2024": {
                 name: "TEKNOLOGI TINGKAT IV",
@@ -288,12 +291,24 @@
         let base64Image = "";
         let quillFakta, quillCatatan;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            quillFakta = new Quill('#editorFakta', { theme: 'snow' });
-            quillCatatan = new Quill('#editorCatatan', { theme: 'snow' });
+        // Toolbar Konfigurasi Quill Editor dengan Opsi Poin Lengkap
+        const toolbarOptions = [
+            [{ 'header': [1, 2, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            ['clean']
+        ];
 
-            quillFakta.on('text-change', updateLivePreview);
-            quillCatatan.on('text-change', updateLivePreview);
+        document.addEventListener('DOMContentLoaded', () => {
+            quillFakta = new Quill('#editorFakta', { 
+                theme: 'snow',
+                modules: { toolbar: toolbarOptions }
+            });
+            
+            quillCatatan = new Quill('#editorCatatan', { 
+                theme: 'snow',
+                modules: { toolbar: toolbarOptions }
+            });
 
             document.getElementById('fotoLampiran').addEventListener('change', function(e) {
                 const file = e.target.files[0];
@@ -301,7 +316,6 @@
                     const reader = new FileReader();
                     reader.onload = function(evt) {
                         base64Image = evt.target.result;
-                        updateLivePreview();
                     };
                     reader.readAsDataURL(file);
                 }
@@ -310,7 +324,6 @@
             updateLivePreview();
         });
 
-        // 1. Switch Login / Sign Up dengan Reset Form
         function toggleAuthView(view) {
             const loginBox = document.getElementById('loginBox');
             const signUpBox = document.getElementById('signUpBox');
@@ -371,7 +384,6 @@
             document.getElementById('classCodeSection').classList.remove('hidden');
         }
 
-        // 2. Verifikasi Kode Kelas (Validasi 3 Token Khusus)
         function handleClassCode(e) {
             e.preventDefault();
             const inputCode = document.getElementById('inputClassCode').value.trim().toUpperCase();
@@ -383,7 +395,6 @@
 
             currentClass = CLASS_TOKENS[inputCode];
 
-            // Set UI Elemen Sesuai Kelas
             document.getElementById('displayClassBadge').innerText = currentClass.name;
             document.getElementById('formClassName').innerText = currentClass.name;
             document.getElementById('driveClassSubtitle').innerText = `Folder Terpusat untuk ${currentClass.name}`;
@@ -408,7 +419,6 @@
             document.getElementById('inputClassCode').value = '';
         }
 
-        // 3. Switch Sub-Bagian Dashboard
         function switchSubSection(section) {
             if (section === 'generator') {
                 document.getElementById('subSectionGenerator').classList.remove('hidden');
@@ -423,7 +433,7 @@
             }
         }
 
-        // 4. Live Preview Builder
+        // Poin 2 & 3: Perbaikan HTML Dokumen (Garis Bawah Presisi & Teks Tengah)
         function buildDocumentHtml() {
             const noLaporan = document.getElementById('noLaporan').value || '...';
             const bulan = document.getElementById('bulan').value;
@@ -435,14 +445,22 @@
             const catatanHtml = quillCatatan ? quillCatatan.root.innerHTML : '';
 
             return `
-                <div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.3; color: black;">
+                <div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.3; color: black; max-width: 800px; margin: 0 auto;">
+                    <!-- RAHASIA Atas Tengah -->
                     <div style="text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 12pt;">RAHASIA</div>
 
-                    <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #000000; display: inline-block; padding-bottom: 2px; margin-bottom: 18pt;">
-                        SEKOLAH TINGGI INTELIJEN NEGARA<br>INTELIJEN TEKNOLOGI
+                    <!-- Kop Surat: Garis Bawah Sepanjang "SEKOLAH TINGGI INTELIJEN NEGARA" & Teks Bawah Ditengah -->
+                    <div style="display: inline-block; border-bottom: 2px solid #000000; padding-bottom: 2px; margin-bottom: 18pt;">
+                        <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase; text-align: left;">
+                            SEKOLAH TINGGI INTELIJEN NEGARA
+                        </div>
+                        <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase; text-align: center;">
+                            INTELIJEN TEKNOLOGI
+                        </div>
                     </div>
                     <br><br>
 
+                    <!-- Judul Laporan -->
                     <div style="text-align: center; font-size: 12pt; font-weight: bold; text-decoration: underline; margin-bottom: 2pt;">LAPORAN INFORMASI</div>
                     <div style="text-align: center; font-size: 12pt; margin-top: 0; margin-bottom: 15pt;">Nomor: R / LI – ${noLaporan} / ${bulan} / ${tahun}</div>
                     
@@ -488,11 +506,12 @@
             `;
         }
 
+        // Dipanggil saat tombol "Pratinjau Dokumen" diklik
         function updateLivePreview() {
             document.getElementById('previewContainer').innerHTML = buildDocumentHtml();
         }
 
-        // 5. Generasi Dokumen Word & PDF
+        // Poin 6: Generasi PDF Disamakan dengan Word (Tidak Terpotong)
         function generateDocument(type) {
             const noLaporan = document.getElementById('noLaporan').value;
             const bulan = document.getElementById('bulan').value;
@@ -506,13 +525,16 @@
                 saveAs(converted, `${fileName}.docx`);
             } else if (type === 'pdf') {
                 const pdfElement = document.createElement('div');
+                pdfElement.style.padding = "20px";
                 pdfElement.innerHTML = docBody;
+                
                 const opt = {
-                    margin: 1.5,
+                    margin: [1, 1, 1, 1], // Top, Left, Bottom, Right dalam cm
                     filename: `${fileName}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' }
+                    html2canvas: { scale: 2, useCORS: true, logging: false },
+                    jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
                 };
                 html2pdf().set(opt).from(pdfElement).save();
             }
