@@ -286,15 +286,19 @@
             updateLivePreview();
         });
 
-        // 1. Tampilan Switch Login / Sign Up
+        // 1. Tampilan Switch Login / Sign Up dengan Reset Form Otomatis
         function toggleAuthView(view) {
             const loginBox = document.getElementById('loginBox');
             const signUpBox = document.getElementById('signUpBox');
+            const loginForm = document.getElementById('loginForm');
+            const signUpForm = document.getElementById('signUpForm');
 
             if (view === 'signup') {
+                loginForm.reset(); // Kosongkan input login
                 loginBox.classList.add('hidden');
                 signUpBox.classList.remove('hidden');
             } else {
+                signUpForm.reset(); // Kosongkan input sign up
                 signUpBox.classList.add('hidden');
                 loginBox.classList.remove('hidden');
             }
@@ -363,6 +367,10 @@
             document.getElementById('dashboardSection').classList.add('hidden');
             document.getElementById('classCodeSection').classList.add('hidden');
             document.getElementById('authSection').classList.remove('hidden');
+            
+            // Kosongkan form saat logout
+            document.getElementById('loginForm').reset();
+            document.getElementById('signUpForm').reset();
         }
 
         // 3. Sub-Bagian Switch
@@ -393,20 +401,16 @@
 
             return `
                 <div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.3; color: black;">
-                    <!-- 2. Header RAHASIA Atas Tengah, Warna Hitam, Bold -->
                     <div style="text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 12pt;">RAHASIA</div>
 
-                    <!-- 3. Kop Surat Kiri dengan Garis Bawah Sepanjang Teks -->
                     <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #000000; display: inline-block; padding-bottom: 2px; margin-bottom: 18pt;">
                         SEKOLAH TINGGI INTELIJEN NEGARA<br>INTELIJEN TEKNOLOGI
                     </div>
                     <br><br>
 
-                    <!-- Judul Laporan -->
                     <div style="text-align: center; font-size: 12pt; font-weight: bold; text-decoration: underline; margin-bottom: 2pt;">LAPORAN INFORMASI</div>
                     <div style="text-align: center; font-size: 12pt; margin-top: 0; margin-bottom: 15pt;">Nomor: R / LI – ${noLaporan} / ${bulan} / ${tahun}</div>
                     
-                    <!-- 4. Metadata Ditengahkan -->
                     <table style="margin-left: auto; margin-right: auto; width: 85%; border-collapse: collapse;" border="0">
                         <tr>
                             <td style="width: 18%; vertical-align: top; padding: 2px 4px; font-size: 12pt;">Kepada</td>
@@ -436,18 +440,14 @@
                     </table>
                     <br>
 
-                    <!-- 5. I. FAKTA-FAKTA tidak di-bold -->
                     <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">I. FAKTA-FAKTA</div>
                     <div style="margin-bottom: 12pt;">${faktaHtml}</div>
 
-                    <!-- 6. II. CATATAN tidak di-bold -->
                     <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">II. CATATAN</div>
                     <div style="margin-bottom: 12pt;">${catatanHtml}</div>
 
-                    <!-- 7. LAMPIRAN tidak di-bold -->
                     <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">LAMPIRAN</div>
                     
-                    <!-- 8. Gambar Lampiran 5 cm x 6 cm -->
                     ${base64Image ? `<img src="${base64Image}" style="width: 5cm; height: 6cm; object-fit: cover;" />` : '<p>-</p>'}
                 </div>
             `;
