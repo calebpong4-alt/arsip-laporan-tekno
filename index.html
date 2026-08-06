@@ -24,47 +24,66 @@
     <!-- ========================================== -->
     <div id="authSection" class="min-h-screen flex items-center justify-center p-4">
         <div class="max-w-md w-full bg-white rounded-xl shadow-lg border p-8">
-            <div class="text-center mb-6">
-                <i class="fa-solid font-bold text-red-600 text-3xl mb-2"></i>
-                <h2 class="text-2xl font-bold tracking-tight">Sistem Laporan Intelijen</h2>
-                <p class="text-xs text-gray-500 uppercase tracking-widest mt-1">Sekolah Tinggi Intelijen Negara</p>
+            
+            <!-- Header (Judul Diubah & Sub-judul Dihapus) -->
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold tracking-tight text-gray-900">ARSIP TEKNOLOGI</h2>
             </div>
 
-            <!-- Tab Switcher -->
-            <div class="flex border-b mb-6">
-                <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="w-1/2 py-2 font-semibold text-blue-700 border-b-2 border-blue-700">Masuk</button>
-                <button id="tabSignUpBtn" onclick="switchAuthTab('signup')" class="w-1/2 py-2 font-semibold text-gray-500 hover:text-blue-700">Daftar (Gmail)</button>
+            <!-- TAMPILAN 1: FORM MASUK -->
+            <div id="loginBox">
+                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Email Gmail</label>
+                        <input type="email" id="loginEmail" placeholder="nama@gmail.com" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow transition">
+                        Masuk
+                    </button>
+                </form>
+
+                <!-- Tautan ke Pendaftaran -->
+                <p class="text-center text-sm text-gray-600 mt-6">
+                    Belum punya akun? 
+                    <button type="button" onclick="toggleAuthView('signup')" class="text-blue-700 font-semibold underline hover:text-blue-800">
+                        Daftar di sini
+                    </button>
+                </p>
             </div>
 
-            <!-- Form Login -->
-            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Email Gmail</label>
-                    <input type="email" id="loginEmail" placeholder="nama@gmail.com" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Password</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                </div>
-                <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow transition">Masuk</button>
-            </form>
+            <!-- TAMPILAN 2: FORM PENDAFTARAN (Default Hidden) -->
+            <div id="signUpBox" class="hidden">
+                <form id="signUpForm" onsubmit="handleSignUp(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Nama Lengkap</label>
+                        <input type="text" id="signUpName" placeholder="Contoh: Nama Lengkap" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Email Gmail</label>
+                        <input type="email" id="signUpEmail" placeholder="user@gmail.com" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Buat Password</label>
+                        <input type="password" id="signUpPassword" placeholder="Minimal 6 Karakter" minlength="6" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    </div>
+                    <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-3 rounded-lg shadow transition">
+                        Buat Akun Baru
+                    </button>
+                </form>
 
-            <!-- Form Sign Up -->
-            <form id="signUpForm" onsubmit="handleSignUp(event)" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Nama Lengkap</label>
-                    <input type="text" id="signUpName" placeholder="Contoh: Monteverdi Kaleb Pinondang Simarmata" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Email Gmail</label>
-                    <input type="email" id="signUpEmail" placeholder="user@gmail.com" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Buat Password</label>
-                    <input type="password" id="signUpPassword" placeholder="Minimal 6 Karakter" minlength="6" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                </div>
-                <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-3 rounded-lg shadow transition">Buat Akun Baru</button>
-            </form>
+                <!-- Tautan Kembali ke Login -->
+                <p class="text-center text-sm text-gray-600 mt-6">
+                    Sudah punya akun? 
+                    <button type="button" onclick="toggleAuthView('login')" class="text-blue-700 font-semibold underline hover:text-blue-800">
+                        Masuk di sini
+                    </button>
+                </p>
+            </div>
+
         </div>
     </div>
 
@@ -275,19 +294,18 @@
         });
 
         // 1. Logika Auth & Sign Up (Gmail)
-        function switchAuthTab(type) {
-            if (type === 'login') {
-                document.getElementById('loginForm').classList.remove('hidden');
-                document.getElementById('signUpForm').classList.add('hidden');
-                document.getElementById('tabLoginBtn').className = "w-1/2 py-2 font-semibold text-blue-700 border-b-2 border-blue-700";
-                document.getElementById('tabSignUpBtn').className = "w-1/2 py-2 font-semibold text-gray-500 hover:text-blue-700";
-            } else {
-                document.getElementById('loginForm').classList.add('hidden');
-                document.getElementById('signUpForm').classList.remove('hidden');
-                document.getElementById('tabSignUpBtn').className = "w-1/2 py-2 font-semibold text-blue-700 border-b-2 border-blue-700";
-                document.getElementById('tabLoginBtn').className = "w-1/2 py-2 font-semibold text-gray-500 hover:text-blue-700";
-            }
-        }
+           function toggleAuthView(view) {
+               const loginBox = document.getElementById('loginBox');
+               const signUpBox = document.getElementById('signUpBox');
+               
+               if (view === 'signup') {
+                   loginBox.classList.add('hidden');
+                   signUpBox.classList.remove('hidden');
+               } else {
+                   signUpBox.classList.add('hidden');
+                   loginBox.classList.remove('hidden');
+               }
+           }
 
         function handleSignUp(e) {
             e.preventDefault();
