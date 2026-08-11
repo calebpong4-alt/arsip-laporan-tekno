@@ -17,24 +17,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <style>
-        /* Memastikan List/Poin Quill Muncul Sesuai di Preview & Cetak */
-        .ql-editor-content ol {
-            list-style-type: decimal !important;
-            padding-left: 1.5rem !important;
+        /* Indentasi Penomoran Sejajar Rata Kiri */
+        .ql-editor-content ol, 
+        .ql-editor-content ul {
+            padding-left: 1.2rem !important;
+            margin-left: 0 !important;
             margin-top: 0.25rem !important;
             margin-bottom: 0.25rem !important;
+        }
+        .ql-editor-content ol {
+            list-style-type: decimal !important;
         }
         .ql-editor-content ul {
             list-style-type: disc !important;
-            padding-left: 1.5rem !important;
-            margin-top: 0.25rem !important;
-            margin-bottom: 0.25rem !important;
         }
         .ql-editor-content li {
             margin-bottom: 0.2rem !important;
+            padding-left: 0.2rem !important;
         }
 
-        /* CSS Khusus Cetak PDF Presisi A4 tanpa Terpotong */
+        /* CSS Khusus Cetak PDF Presisi A4 */
         @media print {
             body * {
                 visibility: hidden;
@@ -241,11 +243,10 @@
                                 <div id="editorCatatan" class="h-28 bg-white"></div>
                             </div>
 
-                            <!-- Poin 2: Input Multiple Foto Lampiran -->
                             <div>
-                                <label class="block text-xs font-bold mb-1">Upload Foto Lampiran (Bisa Pilih > 2 Foto):</label>
+                                <label class="block text-xs font-bold mb-1">Upload Foto Lampiran:</label>
                                 <input type="file" id="fotoLampiran" accept="image/*" multiple class="w-full border p-2 rounded text-xs bg-white shadow-sm">
-                                <span class="text-[10px] text-gray-500">Gunakan tombol Ctrl / Shift saat memilih foto untuk memilih beberapa berkas sekaligus.</span>
+                                <span class="text-[10px] text-gray-500">Gunakan Ctrl/Shift untuk memilih lebih dari 1 foto.</span>
                             </div>
 
                             <!-- Tombol Download & Drive -->
@@ -325,7 +326,7 @@
 
         let currentUser = null;
         let currentClass = null;
-        let uploadedImages = []; // Array penampung banyak foto lampiran
+        let uploadedImages = [];
         let quillFakta, quillCatatan;
 
         const toolbarOptions = [
@@ -346,14 +347,12 @@
                 modules: { toolbar: toolbarOptions }
             });
 
-            // Event listener live update
             quillFakta.on('text-change', updateLivePreview);
             quillCatatan.on('text-change', updateLivePreview);
 
-            // Handler untuk Upload Multiple Foto
             document.getElementById('fotoLampiran').addEventListener('change', function(e) {
                 const files = e.target.files;
-                uploadedImages = []; // Reset list foto
+                uploadedImages = [];
                 
                 if (files && files.length > 0) {
                     let loadedCount = 0;
@@ -485,7 +484,7 @@
             }
         }
 
-        function buildDocumentHtml() {
+        function buildDocumentHtml(isForWord = false) {
             const kategori = document.getElementById('kategori').value || 'R';
             const noLaporan = document.getElementById('noLaporan').value || '...';
             const bulan = document.getElementById('bulan').value;
@@ -500,33 +499,71 @@
             if (kategori === "SR") labelKerahasiaan = "SANGAT RAHASIA";
             if (kategori === "T") labelKerahasiaan = "TERBATAS";
 
-            // Render Lampiran Banyak Foto
-            let lampiranHtml = '<p>-</p>';
+            // Poin 7: Ukuran Gambar Lampiran 2 cm x 2 cm
+            let lampiranHtml = '<p style="font-family: Arial, sans-serif; font-size: 12pt;">-</p>';
             if (uploadedImages.length > 0) {
                 const imgElements = uploadedImages.map(imgSrc => 
-                    `<img src="${imgSrc}" style="width: 5cm; height: 6cm; object-fit: cover; border: 1px solid #ccc; display: inline-block; margin: 4px;" />`
+                    `<img src="${imgSrc}" style="width: 2cm; height: 2cm; object-fit: cover; border: 1px solid #999; display: inline-block; margin: 3px;" />`
                 ).join('');
-                lampiranHtml = `<div style="display: flex; flex-wrap: wrap; gap: 8px;">${imgElements}</div>`;
+                lampiranHtml = `<div style="display: flex; flex-wrap: wrap; gap: 6px;">${imgElements}</div>`;
             }
 
-            return `
-                <div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.3; color: black; max-width: 800px; margin: 0 auto;">
-                    <div style="text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 12pt;">${labelKerahasiaan}</div>
+            // Word Header/Footer XML Section Injection
+            const wordHeaderFooterStyle = isForWord ? `
+                <style>
+                    @page Section1 {
+                        size: 595.3pt 841.9pt;
+                        margin: 56.7pt 56.7pt 56.7pt 56.7pt;
+                        mso-header-margin: 36.0pt;
+                        mso-footer-margin: 36.0pt;
+                        mso-header: h1;
+                        mso-footer: f1;
+                    }
+                    div.Section1 { page: Section1; }
+                    p.MsoHeader, p.MsoFooter {
+                        margin: 0in;
+                        text-align: center;
+                        font-family: Arial, sans-serif;
+                        font-size: 12pt;
+                        font-weight: bold;
+                    }
+                </style>
+            ` : '';
 
+            const wordHeaderFooterElements = isForWord ? `
+                <div style="mso-element:header" id="h1">
+                    <p class="MsoHeader">${labelKerahasiaan}</p>
+                </div>
+                <div style="mso-element:footer" id="f1">
+                    <p class="MsoFooter">${labelKerahasiaan}</p>
+                </div>
+            ` : '';
+
+            return `
+                ${wordHeaderFooterStyle}
+                <div class="Section1" style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.3; color: black; max-width: 800px; margin: 0 auto;">
+                    ${wordHeaderFooterElements}
+
+                    <!-- Header On-screen Preview (non-Word) -->
+                    ${!isForWord ? `<div style="text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 12pt;">${labelKerahasiaan}</div>` : ''}
+
+                    <!-- Poin 1 & 2: Kop Surat dengan Garis Bawah Presisi & Alignment Tengah -->
                     <div style="display: inline-block; border-bottom: 2px solid #000000; padding-bottom: 2px; margin-bottom: 18pt;">
-                        <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase; text-align: left;">
+                        <div style="font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; text-transform: uppercase; text-align: left; white-space: nowrap;">
                             SEKOLAH TINGGI INTELIJEN NEGARA
                         </div>
-                        <div style="font-size: 12pt; font-weight: bold; text-transform: uppercase; text-align: center;">
+                        <div style="font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; text-transform: uppercase; text-align: center;">
                             INTELIJEN TEKNOLOGI
                         </div>
                     </div>
                     <br><br>
 
-                    <div style="text-align: center; font-size: 12pt; font-weight: bold; text-decoration: underline; margin-bottom: 2pt;">LAPORAN INFORMASI</div>
-                    <div style="text-align: center; font-size: 12pt; margin-top: 0; margin-bottom: 15pt;">Nomor: ${kategori} / LI – ${noLaporan} / ${bulan} / ${tahun}</div>
+                    <!-- Judul Laporan -->
+                    <div style="text-align: center; font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; text-decoration: underline; margin-bottom: 2pt;">LAPORAN INFORMASI</div>
+                    <div style="text-align: center; font-family: Arial, sans-serif; font-size: 12pt; margin-top: 0; margin-bottom: 15pt;">Nomor: ${kategori} / LI – ${noLaporan} / ${bulan} / ${tahun}</div>
                     
-                    <table style="margin-left: auto; margin-right: auto; width: 85%; border-collapse: collapse;" border="0">
+                    <!-- Metadata Table (Font Arial) -->
+                    <table style="margin-left: auto; margin-right: auto; width: 85%; border-collapse: collapse; font-family: Arial, sans-serif;" border="0">
                         <tr>
                             <td style="width: 18%; vertical-align: top; padding: 2px 4px; font-size: 12pt;">Kepada</td>
                             <td style="width: 3%; vertical-align: top; padding: 2px 4px; font-size: 12pt;">:</td>
@@ -553,22 +590,25 @@
                             <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">${nilai}</td>
                         </tr>
                     </table>
-                    <br>
+                    
+                    <!-- Poin 5: Garis Pembatas Antara Nilai dan I. FAKTA-FAKTA -->
+                    <hr style="border: 0; border-top: 1px solid #000000; margin-top: 14pt; margin-bottom: 14pt; width: 100%;" />
 
-                    <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">I. FAKTA-FAKTA</div>
-                    <div class="ql-editor-content" style="margin-bottom: 12pt;">${faktaHtml}</div>
+                    <!-- Poin 6: Indentasi Penomoran Rata Kiri Sejajar -->
+                    <div style="font-family: Arial, sans-serif; font-size: 12pt; margin-bottom: 4pt;">I. FAKTA-FAKTA</div>
+                    <div class="ql-editor-content" style="font-family: Arial, sans-serif; font-size: 12pt; margin-bottom: 12pt;">${faktaHtml}</div>
 
-                    <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">II. CATATAN</div>
-                    <div class="ql-editor-content" style="margin-bottom: 12pt;">${catatanHtml}</div>
+                    <div style="font-family: Arial, sans-serif; font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">II. CATATAN</div>
+                    <div class="ql-editor-content" style="font-family: Arial, sans-serif; font-size: 12pt; margin-bottom: 12pt;">${catatanHtml}</div>
 
-                    <div style="font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">LAMPIRAN</div>
+                    <div style="font-family: Arial, sans-serif; font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">LAMPIRAN</div>
                     ${lampiranHtml}
                 </div>
             `;
         }
 
         function updateLivePreview() {
-            document.getElementById('printableArea').innerHTML = buildDocumentHtml();
+            document.getElementById('printableArea').innerHTML = buildDocumentHtml(false);
         }
 
         function generateDocument(type) {
@@ -576,10 +616,41 @@
             const bulan = document.getElementById('bulan').value;
             const tahun = document.getElementById('tahun').value;
             const fileName = `LI-${noLaporan}-${bulan}-${tahun}`;
-            const docBody = buildDocumentHtml();
 
             if (type === 'docx') {
-                const htmlTemplate = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>.ql-editor-content ol { list-style-type: decimal; padding-left: 20px; } .ql-editor-content ul { list-style-type: disc; padding-left: 20px; }</style></head><body>${docBody}</body></html>`;
+                const docBodyForWord = buildDocumentHtml(true);
+                const htmlTemplate = `
+                    <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                          xmlns:w="urn:schemas-microsoft-com:office:word" 
+                          xmlns="http://www.w3.org/TR/REC-html40">
+                    <head>
+                        <meta charset="UTF-8">
+                        <!-- Poin 4: Memastikan Seluruh Dokumen Word Menggunakan Font Arial -->
+                        <style>
+                            body, table, td, div, p {
+                                font-family: 'Arial', sans-serif !important;
+                                font-size: 12pt;
+                            }
+                            .ql-editor-content ol {
+                                list-style-type: decimal !important;
+                                padding-left: 18pt !important;
+                                margin-left: 0 !important;
+                            }
+                            .ql-editor-content ul {
+                                list-style-type: disc !important;
+                                padding-left: 18pt !important;
+                                margin-left: 0 !important;
+                            }
+                            .ql-editor-content li {
+                                margin-bottom: 2pt !important;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${docBodyForWord}
+                    </body>
+                    </html>
+                `;
                 const converted = htmlDocx.asBlob(htmlTemplate);
                 saveAs(converted, `${fileName}.docx`);
             } else if (type === 'pdf') {
