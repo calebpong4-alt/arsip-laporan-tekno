@@ -25,12 +25,8 @@
             margin-top: 0.25rem !important;
             margin-bottom: 0.25rem !important;
         }
-        .ql-editor-content ol {
-            list-style-type: decimal !important;
-        }
-        .ql-editor-content ul {
-            list-style-type: disc !important;
-        }
+        .ql-editor-content ol { list-style-type: decimal !important; }
+        .ql-editor-content ul { list-style-type: disc !important; }
         .ql-editor-content li {
             margin-bottom: 0.2rem !important;
             padding-left: 0.2rem !important;
@@ -38,12 +34,8 @@
 
         /* CSS Khusus Cetak PDF Presisi A4 */
         @media print {
-            body * {
-                visibility: hidden;
-            }
-            #printableArea, #printableArea * {
-                visibility: visible;
-            }
+            body * { visibility: hidden; }
+            #printableArea, #printableArea * { visibility: visible; }
             #printableArea {
                 position: absolute;
                 left: 0;
@@ -499,7 +491,7 @@
             if (kategori === "SR") labelKerahasiaan = "SANGAT RAHASIA";
             if (kategori === "T") labelKerahasiaan = "TERBATAS";
 
-            // Poin 7: Ukuran Gambar Lampiran 2 cm x 2 cm
+            // Foto Lampiran 2 cm x 2 cm
             let lampiranHtml = '<p style="font-family: Arial, sans-serif; font-size: 12pt;">-</p>';
             if (uploadedImages.length > 0) {
                 const imgElements = uploadedImages.map(imgSrc => 
@@ -508,7 +500,7 @@
                 lampiranHtml = `<div style="display: flex; flex-wrap: wrap; gap: 6px;">${imgElements}</div>`;
             }
 
-            // Word Header/Footer XML Section Injection
+            // Word Header/Footer XML
             const wordHeaderFooterStyle = isForWord ? `
                 <style>
                     @page Section1 {
@@ -544,57 +536,59 @@
                 <div class="Section1" style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.3; color: black; max-width: 800px; margin: 0 auto;">
                     ${wordHeaderFooterElements}
 
-                    <!-- Header On-screen Preview (non-Word) -->
                     ${!isForWord ? `<div style="text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 12pt;">${labelKerahasiaan}</div>` : ''}
 
-                    <!-- Poin 1 & 2: Kop Surat dengan Garis Bawah Presisi & Alignment Tengah -->
-                    <div style="display: inline-block; border-bottom: 2px solid #000000; padding-bottom: 2px; margin-bottom: 18pt;">
-                        <div style="font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; text-transform: uppercase; text-align: left; white-space: nowrap;">
-                            SEKOLAH TINGGI INTELIJEN NEGARA
-                        </div>
-                        <div style="font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; text-transform: uppercase; text-align: center;">
-                            INTELIJEN TEKNOLOGI
-                        </div>
-                    </div>
-                    <br><br>
+                    <!-- Kop Surat: Garis Bawah Dikunci Tepat Selebar Teks STIN & Alignment Tengah -->
+                    <table border="0" cellpadding="0" cellspacing="0" style="margin: 0; padding: 0; border-collapse: collapse; display: inline-block;">
+                        <tr>
+                            <td style="border-bottom: 2px solid #000000; padding-bottom: 2px; text-align: center;">
+                                <div style="font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; text-transform: uppercase; text-align: center; white-space: nowrap;">
+                                    SEKOLAH TINGGI INTELIJEN NEGARA
+                                </div>
+                                <div style="font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; text-transform: uppercase; text-align: center; margin-top: 1px;">
+                                    INTELIJEN TEKNOLOGI
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
 
-                    <!-- Judul Laporan -->
-                    <div style="text-align: center; font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; text-decoration: underline; margin-bottom: 2pt;">LAPORAN INFORMASI</div>
+                    <!-- Hapus Spasi Berlebih Antara Kop dan Judul -->
+                    <div style="text-align: center; font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; text-decoration: underline; margin-top: 12pt; margin-bottom: 2pt;">LAPORAN INFORMASI</div>
                     <div style="text-align: center; font-family: Arial, sans-serif; font-size: 12pt; margin-top: 0; margin-bottom: 15pt;">Nomor: ${kategori} / LI – ${noLaporan} / ${bulan} / ${tahun}</div>
                     
-                    <!-- Metadata Table (Font Arial) -->
+                    <!-- Metadata Table (Font Arial Wajib) -->
                     <table style="margin-left: auto; margin-right: auto; width: 85%; border-collapse: collapse; font-family: Arial, sans-serif;" border="0">
                         <tr>
-                            <td style="width: 18%; vertical-align: top; padding: 2px 4px; font-size: 12pt;">Kepada</td>
-                            <td style="width: 3%; vertical-align: top; padding: 2px 4px; font-size: 12pt;">:</td>
-                            <td style="width: 79%; vertical-align: top; padding: 2px 4px; font-size: 12pt;">Yth. Kepala Prodi Intelijen Teknologi</td>
+                            <td style="width: 18%; vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">Kepada</td>
+                            <td style="width: 3%; vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">:</td>
+                            <td style="width: 79%; vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">Yth. Kepala Prodi Intelijen Teknologi</td>
                         </tr>
                         <tr>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">Dari</td>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">:</td>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">${userName}</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">Dari</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">:</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">${userName}</td>
                         </tr>
                         <tr>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">Tembusan</td>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">:</td>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">1. Sekretaris Prodi Intelijen Teknologi<br>2. Staf Prodi Intelijen Teknologi</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">Tembusan</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">:</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">1. Sekretaris Prodi Intelijen Teknologi<br>2. Staf Prodi Intelijen Teknologi</td>
                         </tr>
                         <tr>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">Hal</td>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">:</td>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">${hal}</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">Hal</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">:</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">${hal}</td>
                         </tr>
                         <tr>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">Nilai</td>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">:</td>
-                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt;">${nilai}</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">Nilai</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">:</td>
+                            <td style="vertical-align: top; padding: 2px 4px; font-size: 12pt; font-family: Arial, sans-serif;">${nilai}</td>
                         </tr>
                     </table>
                     
-                    <!-- Poin 5: Garis Pembatas Antara Nilai dan I. FAKTA-FAKTA -->
-                    <hr style="border: 0; border-top: 1px solid #000000; margin-top: 14pt; margin-bottom: 14pt; width: 100%;" />
+                    <!-- Garis Pembatas Sepanjang Layout Antara Nilai dan I. FAKTA-FAKTA -->
+                    <div style="border-top: 1px solid #000000; margin-top: 14pt; margin-bottom: 14pt; width: 100%;"></div>
 
-                    <!-- Poin 6: Indentasi Penomoran Rata Kiri Sejajar -->
+                    <!-- Indentasi Penomoran Rata Kiri -->
                     <div style="font-family: Arial, sans-serif; font-size: 12pt; margin-bottom: 4pt;">I. FAKTA-FAKTA</div>
                     <div class="ql-editor-content" style="font-family: Arial, sans-serif; font-size: 12pt; margin-bottom: 12pt;">${faktaHtml}</div>
 
@@ -625,7 +619,6 @@
                           xmlns="http://www.w3.org/TR/REC-html40">
                     <head>
                         <meta charset="UTF-8">
-                        <!-- Poin 4: Memastikan Seluruh Dokumen Word Menggunakan Font Arial -->
                         <style>
                             body, table, td, div, p {
                                 font-family: 'Arial', sans-serif !important;
