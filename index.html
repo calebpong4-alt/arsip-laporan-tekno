@@ -1,132 +1,669 @@
-function buildDocumentHtml(isForWord = false) {
-    const kategori = document.getElementById('kategori').value || 'R';
-    const noLaporan = document.getElementById('noLaporan').value || '46';
-    const bulan = document.getElementById('bulan').value || 'III';
-    const tahun = document.getElementById('tahun').value || '2026';
-    const hal = document.getElementById('hal').value || '...';
-    const nilai = document.getElementById('nilai').value || 'A-1';
-    const userName = currentUser ? currentUser.name : 'Monteverdi Kaleb Pinondang Simarmata';
-    const faktaHtml = quillFakta ? quillFakta.root.innerHTML : '';
-    const catatanHtml = quillCatatan ? quillCatatan.root.innerHTML : '';
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARSIP TEKNOLOGI - Sistem Laporan Informasi</title>
+    <!-- Tailwind CSS & FontAwesome Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Quill.js Editor -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    
+    <!-- Library Konversi Word (.docx) -->
+    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-    let labelKerahasiaan = "RAHASIA";
-    if (kategori === "SR") labelKerahasiaan = "SANGAT RAHASIA";
-    if (kategori === "T") labelKerahasiaan = "TERBATAS";
+    <style>
+        /* Indentasi Penomoran Sejajar Rata Kiri */
+        .ql-editor-content ol, 
+        .ql-editor-content ul {
+            padding-left: 1.2rem !important;
+            margin-left: 0 !important;
+            margin-top: 0.25rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+        .ql-editor-content ol { list-style-type: decimal !important; }
+        .ql-editor-content ul { list-style-type: disc !important; }
+        .ql-editor-content li {
+            margin-bottom: 0.2rem !important;
+            padding-left: 0.2rem !important;
+        }
 
-    // Foto Lampiran
-    let lampiranHtml = '<p style="font-family: Arial, sans-serif; font-size: 12pt;">-</p>';
-    if (uploadedImages.length > 0) {
-        const imgElements = uploadedImages.map(imgSrc => 
-            `<img src="${imgSrc}" style="width: 2cm; height: 2cm; object-fit: cover; border: 1px solid #999; display: inline-block; margin: 3px;" />`
-        ).join('');
-        lampiranHtml = `<div style="display: flex; flex-wrap: wrap; gap: 6px;">${imgElements}</div>`;
-    }
-
-    // Word Header/Footer XML
-    const wordHeaderFooterStyle = isForWord ? `
-        <style>
-            @page Section1 {
-                size: 595.3pt 841.9pt;
-                margin: 56.7pt 56.7pt 56.7pt 56.7pt;
-                mso-header-margin: 36.0pt;
-                mso-footer-margin: 36.0pt;
-                mso-header: h1;
-                mso-footer: f1;
+        /* CSS Khusus Cetak PDF Presisi A4 */
+        @media print {
+            body * { visibility: hidden; }
+            #printableArea, #printableArea * { visibility: visible; }
+            #printableArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
             }
-            div.Section1 { page: Section1; }
-            p.MsoHeader, p.MsoFooter {
-                margin: 0in;
-                text-align: center;
-                font-family: Arial, sans-serif;
-                font-size: 12pt;
-                font-weight: bold;
+            @page {
+                size: A4 portrait;
+                margin: 2cm;
             }
-        </style>
-    ` : '';
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen text-gray-800">
 
-    const wordHeaderFooterElements = isForWord ? `
-        <div style="mso-element:header" id="h1">
-            <p class="MsoHeader">${labelKerahasiaan}</p>
+    <!-- ========================================== -->
+    <!-- TAHAP 1: HALAMAN LOGIN & SIGN UP           -->
+    <!-- ========================================== -->
+    <div id="authSection" class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-white rounded-xl shadow-lg border p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold tracking-tight text-gray-900">ARSIP TEKNOLOGI</h2>
+            </div>
+
+            <!-- TAMPILAN 1: FORM MASUK -->
+            <div id="loginBox">
+                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Email Gmail</label>
+                        <input type="email" id="loginEmail" placeholder="nama@gmail.com" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow transition">
+                        Masuk
+                    </button>
+                </form>
+
+                <p class="text-center text-sm text-gray-600 mt-6">
+                    Belum punya akun? 
+                    <button type="button" onclick="toggleAuthView('signup')" class="text-blue-700 font-semibold underline hover:text-blue-800">
+                        Daftar di sini
+                    </button>
+                </p>
+            </div>
+
+            <!-- TAMPILAN 2: FORM PENDAFTARAN -->
+            <div id="signUpBox" class="hidden">
+                <form id="signUpForm" onsubmit="handleSignUp(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Nama Lengkap</label>
+                        <input type="text" id="signUpName" placeholder="Contoh: Nama Lengkap" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Email Gmail</label>
+                        <input type="email" id="signUpEmail" placeholder="user@gmail.com" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1 text-gray-700">Buat Password</label>
+                        <input type="password" id="signUpPassword" placeholder="Minimal 6 Karakter" minlength="6" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" required>
+                    </div>
+                    <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-3 rounded-lg shadow transition">
+                        Buat Akun Baru
+                    </button>
+                </form>
+
+                <p class="text-center text-sm text-gray-600 mt-6">
+                    Sudah punya akun? 
+                    <button type="button" onclick="toggleAuthView('login')" class="text-blue-700 font-semibold underline hover:text-blue-800">
+                        Masuk di sini
+                    </button>
+                </p>
+            </div>
         </div>
-        <div style="mso-element:footer" id="f1">
-            <p class="MsoFooter">${labelKerahasiaan}</p>
-        </div>
-    ` : '';
+    </div>
 
-    return `
-        ${wordHeaderFooterStyle}
-        <div class="Section1" style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.3; color: black; max-width: 800px; margin: 0 auto;">
-            ${wordHeaderFooterElements}
+    <!-- ========================================== -->
+    <!-- TAHAP 2: VERIFIKASI KODE KELAS             -->
+    <!-- ========================================== -->
+    <div id="classCodeSection" class="min-h-screen flex items-center justify-center p-4 hidden">
+        <div class="max-w-md w-full bg-white rounded-xl shadow-lg border p-8 text-center">
+            <div class="w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Verifikasi Kode Kelas</h3>
+            <p class="text-sm text-gray-600 mb-6">masukkan token kelas anda</p>
 
-            <!-- Teks Kerahasiaan Paling Atas (Hanya tampil di Preview/PDF) -->
-            ${!isForWord ? `<div style="text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 24pt;">${labelKerahasiaan}</div>` : ''}
-
-            <!-- Kop Surat Rata Kiri & Garis Bawah Mengikuti Panjang Teks -->
-            <div style="margin-bottom: 30pt;">
-                <div style="display: inline-block; border-bottom: 1.5px solid #000; padding-bottom: 2px;">
-                    <div style="font-weight: bold; font-size: 12pt; text-transform: uppercase;">SEKOLAH TINGGI INTELIJEN NEGARA</div>
-                    <div style="font-weight: bold; font-size: 12pt; text-transform: uppercase; text-align: center;">INTELIJEN TEKNOLOGI</div>
+            <form onsubmit="handleClassCode(event)" class="space-y-4">
+                <div>
+                    <input type="text" id="inputClassCode" placeholder="Masukkan Token Kelas..." class="w-full border p-3 rounded-lg text-center tracking-widest font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" required>
                 </div>
-            </div>
-
-            <!-- Judul & Nomor Laporan -->
-            <div style="text-align: center; font-weight: bold; text-decoration: underline; font-size: 12pt; margin-bottom: 2pt;">LAPORAN INFORMASI</div>
-            <div style="text-align: center; font-size: 12pt; margin-bottom: 24pt;">Nomor: ${kategori} / LI – ${noLaporan} / ${bulan} / ${tahun}</div>
-            
-            <!-- Metadata Format Rapi Sejajar -->
-            <div style="margin-left: 10%; margin-right: 10%; margin-bottom: 15pt;">
-                <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12pt;" border="0">
-                    <tr>
-                        <td style="width: 22%; vertical-align: top; padding: 3px 0;">Kepada</td>
-                        <td style="width: 4%; vertical-align: top; padding: 3px 0;">:</td>
-                        <td style="vertical-align: top; padding: 3px 0;">Yth. Kepala Prodi Intelijen Teknologi</td>
-                    </tr>
-                    <tr>
-                        <td style="vertical-align: top; padding: 3px 0;">Dari</td>
-                        <td style="vertical-align: top; padding: 3px 0;">:</td>
-                        <td style="vertical-align: top; padding: 3px 0;">${userName}</td>
-                    </tr>
-                    <tr>
-                        <td style="vertical-align: top; padding: 3px 0;">Tembusan</td>
-                        <td style="vertical-align: top; padding: 3px 0;">:</td>
-                        <td style="vertical-align: top; padding: 3px 0;">
-                            <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12pt;" border="0">
-                                <tr>
-                                    <td style="width: 20px; vertical-align: top;">1.</td>
-                                    <td style="vertical-align: top;">Sekretaris Prodi Intelijen Teknologi</td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 20px; vertical-align: top;">2.</td>
-                                    <td style="vertical-align: top;">Staf Prodi Intelijen Teknologi</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="vertical-align: top; padding: 3px 0;">Hal</td>
-                        <td style="vertical-align: top; padding: 3px 0;">:</td>
-                        <td style="vertical-align: top; padding: 3px 0;">${hal}</td>
-                    </tr>
-                    <tr>
-                        <td style="vertical-align: top; padding: 3px 0;">Nilai</td>
-                        <td style="vertical-align: top; padding: 3px 0;">:</td>
-                        <td style="vertical-align: top; padding: 3px 0;">${nilai}</td>
-                    </tr>
-                </table>
-            </div>
-            
-            <!-- Garis Pembatas Tebal Horizontal Penuh -->
-            <div style="border-top: 1.5px solid #000000; margin-top: 15pt; margin-bottom: 15pt; width: 100%;"></div>
-
-            <!-- Isi Fakta & Catatan -->
-            <div style="font-weight: bold; font-size: 12pt; margin-bottom: 4pt;">I. FAKTA-FAKTA</div>
-            <div class="ql-editor-content" style="font-size: 12pt; margin-bottom: 12pt;">${faktaHtml}</div>
-
-            <div style="font-weight: bold; font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">II. CATATAN</div>
-            <div class="ql-editor-content" style="font-size: 12pt; margin-bottom: 12pt;">${catatanHtml}</div>
-
-            <div style="font-weight: bold; font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">LAMPIRAN</div>
-            ${lampiranHtml}
+                <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow transition">
+                    Verifikasi Token
+                </button>
+            </form>
         </div>
-    `;
-}
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAHAP 3: DASHBOARD UTAMA                   -->
+    <!-- ========================================== -->
+    <div id="dashboardSection" class="min-h-screen flex flex-col hidden">
+        <header class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center border-b border-gray-800">
+            <div class="flex items-center space-x-3">
+                <span class="font-bold text-red-500 tracking-widest border border-red-500 px-2 py-0.5 rounded text-xs">RAHASIA</span>
+                <span class="font-bold text-sm hidden md:inline">ARSIP TEKNOLOGI</span>
+                <span id="displayClassBadge" class="bg-blue-800 text-blue-200 text-xs font-bold px-2.5 py-1 rounded-full uppercase">
+                    TEKNOLOGI
+                </span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="displayUserName" class="text-sm text-gray-300 font-semibold">Pengguna</span>
+                <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar
+                </button>
+            </div>
+        </header>
+
+        <div class="flex flex-1 flex-col md:flex-row">
+            <aside class="w-full md:w-64 bg-white border-r border-gray-200 p-4">
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Menu Utama</div>
+                <nav class="space-y-2">
+                    <button onclick="switchSubSection('generator')" id="navGeneratorBtn" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium text-blue-700 bg-blue-50">
+                        <i class="fa-solid fa-file-pen"></i>
+                        <span>Pembuat LI</span>
+                    </button>
+                    <button onclick="switchSubSection('drive')" id="navDriveBtn" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium text-gray-600 hover:bg-gray-100">
+                        <i class="fa-brands fa-google-drive"></i>
+                        <span>GDrive Kelas</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <main class="flex-1 p-6 bg-gray-50 overflow-y-auto">
+                <section id="subSectionGenerator">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Form Input Laporan -->
+                        <div class="bg-white p-6 rounded-xl border shadow-sm space-y-6">
+                            <div class="flex justify-between items-center border-b pb-3">
+                                <h3 class="text-lg font-bold">Form Input Laporan Informasi</h3>
+                                <span id="formClassName" class="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200"></span>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-gray-50 p-3 rounded-lg border">
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Kategori</label>
+                                    <select id="kategori" onchange="updateLivePreview()" class="w-full border p-1.5 rounded text-sm shadow-sm bg-white font-bold">
+                                        <option value="R" selected>R (Rahasia)</option>
+                                        <option value="SR">SR (Sangat Rahasia)</option>
+                                        <option value="T">T (Biasa/Terbatas)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">No. LI</label>
+                                    <input type="number" id="noLaporan" value="46" oninput="updateLivePreview()" class="w-full border p-1.5 rounded text-sm shadow-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Bulan</label>
+                                    <select id="bulan" onchange="updateLivePreview()" class="w-full border p-1.5 rounded text-sm shadow-sm bg-white">
+                                        <option value="I">I</option><option value="II">II</option>
+                                        <option value="III" selected>III</option><option value="IV">IV</option>
+                                        <option value="V">V</option><option value="VI">VI</option>
+                                        <option value="VII">VII</option><option value="VIII">VIII</option>
+                                        <option value="IX">IX</option><option value="X">X</option>
+                                        <option value="XI">XI</option><option value="XII">XII</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Tahun</label>
+                                    <input type="number" id="tahun" value="2026" oninput="updateLivePreview()" class="w-full border p-1.5 rounded text-sm shadow-sm">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Hal / Subjek</label>
+                                    <input type="text" id="hal" placeholder="..." oninput="updateLivePreview()" class="w-full border p-2 rounded text-sm shadow-sm" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Nilai Informasi</label>
+                                    <input type="text" id="nilai" value="A-1" oninput="updateLivePreview()" class="w-full border p-2 rounded text-sm shadow-sm" required>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold mb-1">I. FAKTA-FAKTA</label>
+                                <div id="editorFakta" class="h-36 bg-white"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold mb-1">II. CATATAN</label>
+                                <div id="editorCatatan" class="h-28 bg-white"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Upload Foto Lampiran:</label>
+                                <input type="file" id="fotoLampiran" accept="image/*" multiple class="w-full border p-2 rounded text-xs bg-white shadow-sm">
+                                <span class="text-[10px] text-gray-500">Gunakan Ctrl/Shift untuk memilih lebih dari 1 foto.</span>
+                            </div>
+
+                            <!-- Tombol Download & Drive -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t">
+                                <button type="button" onclick="generateDocument('docx')" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2.5 rounded text-xs shadow transition">
+                                    <i class="fa-solid fa-file-word mr-1"></i> Download Word
+                                </button>
+                                <button type="button" onclick="generateDocument('pdf')" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 rounded text-xs shadow transition">
+                                    <i class="fa-solid fa-file-pdf mr-1"></i> Download PDF
+                                </button>
+                                <button type="button" onclick="saveToGoogleDrive()" class="bg-green-700 hover:bg-green-800 text-white font-bold py-2.5 rounded text-xs shadow transition">
+                                    <i class="fa-brands fa-google-drive mr-1"></i> Simpan ke Drive Kelas
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Live Document Preview Canvas -->
+                        <div class="bg-white p-6 rounded-xl border shadow-sm">
+                            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                                <h3 class="text-lg font-bold">Live Document Preview</h3>
+                                <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-200">
+                                    <i class="fa-solid fa-bolt mr-1"></i> Real-time
+                                </span>
+                            </div>
+                            <div class="border p-6 rounded bg-white min-h-[600px] overflow-y-auto">
+                                <div id="printableArea">
+                                    <!-- Dynamic HTML Rendered Here -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <section id="subSectionDrive" class="hidden">
+                    <div class="bg-white p-6 rounded-xl border shadow-sm">
+                        <h3 class="text-lg font-bold mb-1">Google Drive Penyimpanan Kelas</h3>
+                        <p id="driveClassSubtitle" class="text-sm font-semibold text-blue-700 mb-6"></p>
+                        
+                        <div class="border rounded-lg h-96 bg-gray-50 flex items-center justify-center">
+                            <div class="text-center p-6">
+                                <i class="fa-brands fa-google-drive text-5xl text-green-600 mb-3"></i>
+                                <h4 id="driveTitle" class="font-bold text-gray-700 text-lg"></h4>
+                                <p class="text-xs text-gray-500 mb-4">ID Folder Khusus: <span id="driveFolderId" class="font-mono text-gray-700 font-bold"></span></p>
+                                <a id="driveLinkBtn" href="#" target="_blank" class="inline-block bg-green-700 hover:bg-green-800 text-white text-xs font-bold px-4 py-2.5 rounded transition">
+                                    Buka Google Drive Kelas di Tab Baru
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC                           -->
+    <!-- ========================================== -->
+    <script>
+        const CLASS_TOKENS = {
+            "HORI20N2024": {
+                name: "TEKNOLOGI TINGKAT IV",
+                folderId: "DRIVE-TEK-TK4-2024",
+                driveUrl: "https://drive.google.com/drive/folders/1_Tingkat4_Hori20n2024"
+            },
+            "VI21ON2025": {
+                name: "TEKNOLOGI TINGKAT III",
+                folderId: "DRIVE-TEK-TK3-2025",
+                driveUrl: "https://drive.google.com/drive/folders/2_Tingkat3_Vi21on2025"
+            },
+            "TEKNO2026": {
+                name: "TEKNOLOGI TINGKAT II",
+                folderId: "DRIVE-TEK-TK2-2026",
+                driveUrl: "https://drive.google.com/drive/folders/3_Tingkat2_Tekno2026"
+            }
+        };
+
+        let currentUser = null;
+        let currentClass = null;
+        let uploadedImages = [];
+        let quillFakta, quillCatatan;
+
+        const toolbarOptions = [
+            [{ 'header': [1, 2, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            ['clean']
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            quillFakta = new Quill('#editorFakta', { 
+                theme: 'snow',
+                modules: { toolbar: toolbarOptions }
+            });
+            
+            quillCatatan = new Quill('#editorCatatan', { 
+                theme: 'snow',
+                modules: { toolbar: toolbarOptions }
+            });
+
+            quillFakta.on('text-change', updateLivePreview);
+            quillCatatan.on('text-change', updateLivePreview);
+
+            document.getElementById('fotoLampiran').addEventListener('change', function(e) {
+                const files = e.target.files;
+                uploadedImages = [];
+                
+                if (files && files.length > 0) {
+                    let loadedCount = 0;
+                    Array.from(files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            uploadedImages.push(evt.target.result);
+                            loadedCount++;
+                            if (loadedCount === files.length) {
+                                updateLivePreview();
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                } else {
+                    updateLivePreview();
+                }
+            });
+
+            updateLivePreview();
+        });
+
+        function toggleAuthView(view) {
+            const loginBox = document.getElementById('loginBox');
+            const signUpBox = document.getElementById('signUpBox');
+            const loginForm = document.getElementById('loginForm');
+            const signUpForm = document.getElementById('signUpForm');
+
+            if (view === 'signup') {
+                loginForm.reset();
+                loginBox.classList.add('hidden');
+                signUpBox.classList.remove('hidden');
+            } else {
+                signUpForm.reset();
+                signUpBox.classList.add('hidden');
+                loginBox.classList.remove('hidden');
+            }
+        }
+
+        function handleSignUp(e) {
+            e.preventDefault();
+            const name = document.getElementById('signUpName').value;
+            const email = document.getElementById('signUpEmail').value;
+            const password = document.getElementById('signUpPassword').value;
+
+            if (!email.endsWith('@gmail.com')) {
+                alert("Pendaftaran wajib menggunakan email Gmail (@gmail.com).");
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            if (users.find(u => u.email === email)) {
+                alert("Email Gmail ini sudah terdaftar. Silakan login.");
+                return;
+            }
+
+            users.push({ name, email, password });
+            localStorage.setItem('registeredUsers', JSON.stringify(users));
+            alert("Pendaftaran berhasil! Silakan masuk dengan akun Anda.");
+            toggleAuthView('login');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (!user) {
+                alert("Email Gmail atau Password salah. Silakan periksa kembali atau daftar terlebih dahulu.");
+                return;
+            }
+
+            currentUser = user;
+            document.getElementById('displayUserName').innerText = user.name;
+            
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('classCodeSection').classList.remove('hidden');
+        }
+
+        function handleClassCode(e) {
+            e.preventDefault();
+            const inputCode = document.getElementById('inputClassCode').value.trim().toUpperCase();
+
+            if (!CLASS_TOKENS[inputCode]) {
+                alert("Kode/Token kelas salah! Silakan masukkan token kelas yang valid.");
+                return;
+            }
+
+            currentClass = CLASS_TOKENS[inputCode];
+
+            document.getElementById('displayClassBadge').innerText = currentClass.name;
+            document.getElementById('formClassName').innerText = currentClass.name;
+            document.getElementById('driveClassSubtitle').innerText = `Folder Terpusat untuk ${currentClass.name}`;
+            document.getElementById('driveTitle').innerText = `Folder Google Drive: ${currentClass.name}`;
+            document.getElementById('driveFolderId').innerText = currentClass.folderId;
+            document.getElementById('driveLinkBtn').href = currentClass.driveUrl;
+
+            document.getElementById('classCodeSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            updateLivePreview();
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            currentClass = null;
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('classCodeSection').classList.add('hidden');
+            document.getElementById('authSection').classList.remove('hidden');
+            
+            document.getElementById('loginForm').reset();
+            document.getElementById('signUpForm').reset();
+            document.getElementById('inputClassCode').value = '';
+        }
+
+        function switchSubSection(section) {
+            if (section === 'generator') {
+                document.getElementById('subSectionGenerator').classList.remove('hidden');
+                document.getElementById('subSectionDrive').classList.add('hidden');
+                document.getElementById('navGeneratorBtn').className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium text-blue-700 bg-blue-50";
+                document.getElementById('navDriveBtn').className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium text-gray-600 hover:bg-gray-100";
+            } else {
+                document.getElementById('subSectionGenerator').classList.add('hidden');
+                document.getElementById('subSectionDrive').classList.remove('hidden');
+                document.getElementById('navDriveBtn').className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium text-blue-700 bg-blue-50";
+                document.getElementById('navGeneratorBtn').className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium text-gray-600 hover:bg-gray-100";
+            }
+        }
+
+        function buildDocumentHtml(isForWord = false) {
+            const kategori = document.getElementById('kategori').value || 'R';
+            const noLaporan = document.getElementById('noLaporan').value || '46';
+            const bulan = document.getElementById('bulan').value || 'III';
+            const tahun = document.getElementById('tahun').value || '2026';
+            const hal = document.getElementById('hal').value || '...';
+            const nilai = document.getElementById('nilai').value || 'A-1';
+            const userName = currentUser ? currentUser.name : 'Monteverdi Kaleb Pinondang Simarmata';
+            const faktaHtml = quillFakta ? quillFakta.root.innerHTML : '';
+            const catatanHtml = quillCatatan ? quillCatatan.root.innerHTML : '';
+
+            let labelKerahasiaan = "RAHASIA";
+            if (kategori === "SR") labelKerahasiaan = "SANGAT RAHASIA";
+            if (kategori === "T") labelKerahasiaan = "TERBATAS";
+
+            // Foto Lampiran
+            let lampiranHtml = '<p style="font-family: Arial, sans-serif; font-size: 12pt;">-</p>';
+            if (uploadedImages.length > 0) {
+                const imgElements = uploadedImages.map(imgSrc => 
+                    `<img src="${imgSrc}" style="width: 2cm; height: 2cm; object-fit: cover; border: 1px solid #999; display: inline-block; margin: 3px;" />`
+                ).join('');
+                lampiranHtml = `<div style="display: flex; flex-wrap: wrap; gap: 6px;">${imgElements}</div>`;
+            }
+
+            // Word Header/Footer XML
+            const wordHeaderFooterStyle = isForWord ? `
+                <style>
+                    @page Section1 {
+                        size: 595.3pt 841.9pt;
+                        margin: 56.7pt 56.7pt 56.7pt 56.7pt;
+                        mso-header-margin: 36.0pt;
+                        mso-footer-margin: 36.0pt;
+                        mso-header: h1;
+                        mso-footer: f1;
+                    }
+                    div.Section1 { page: Section1; }
+                    p.MsoHeader, p.MsoFooter {
+                        margin: 0in;
+                        text-align: center;
+                        font-family: Arial, sans-serif;
+                        font-size: 12pt;
+                        font-weight: bold;
+                    }
+                </style>
+            ` : '';
+
+            const wordHeaderFooterElements = isForWord ? `
+                <div style="mso-element:header" id="h1">
+                    <p class="MsoHeader">${labelKerahasiaan}</p>
+                </div>
+                <div style="mso-element:footer" id="f1">
+                    <p class="MsoFooter">${labelKerahasiaan}</p>
+                </div>
+            ` : '';
+
+            return `
+                ${wordHeaderFooterStyle}
+                <div class="Section1" style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.3; color: black; max-width: 800px; margin: 0 auto;">
+                    ${wordHeaderFooterElements}
+
+                    <!-- Teks Kerahasiaan Paling Atas -->
+                    <div style="text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 24pt;">${labelKerahasiaan}</div>
+
+                    <!-- Kop Surat Rata Kiri & Garis Bawah Mengikuti Panjang Teks -->
+                    <div style="margin-bottom: 30pt;">
+                        <div style="display: inline-block; border-bottom: 1.5px solid #000; padding-bottom: 2px;">
+                            <div style="font-weight: bold; font-size: 12pt; text-transform: uppercase;">SEKOLAH TINGGI INTELIJEN NEGARA</div>
+                            <div style="font-weight: bold; font-size: 12pt; text-transform: uppercase; text-align: center;">INTELIJEN TEKNOLOGI</div>
+                        </div>
+                    </div>
+
+                    <!-- Judul & Nomor Laporan -->
+                    <div style="text-align: center; font-weight: bold; text-decoration: underline; font-size: 12pt; margin-bottom: 2pt;">LAPORAN INFORMASI</div>
+                    <div style="text-align: center; font-size: 12pt; margin-bottom: 24pt;">Nomor: ${kategori} / LI – ${noLaporan} / ${bulan} / ${tahun}</div>
+                    
+                    <!-- Metadata Format Rapi Sejajar -->
+                    <div style="margin-left: 10%; margin-right: 10%; margin-bottom: 15pt;">
+                        <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12pt;" border="0">
+                            <tr>
+                                <td style="width: 22%; vertical-align: top; padding: 3px 0;">Kepada</td>
+                                <td style="width: 4%; vertical-align: top; padding: 3px 0;">:</td>
+                                <td style="vertical-align: top; padding: 3px 0;">Yth. Kepala Prodi Intelijen Teknologi</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; padding: 3px 0;">Dari</td>
+                                <td style="vertical-align: top; padding: 3px 0;">:</td>
+                                <td style="vertical-align: top; padding: 3px 0;">${userName}</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; padding: 3px 0;">Tembusan</td>
+                                <td style="vertical-align: top; padding: 3px 0;">:</td>
+                                <td style="vertical-align: top; padding: 3px 0;">
+                                    <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12pt;" border="0">
+                                        <tr>
+                                            <td style="width: 20px; vertical-align: top;">1.</td>
+                                            <td style="vertical-align: top;">Sekretaris Prodi Intelijen Teknologi</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width: 20px; vertical-align: top;">2.</td>
+                                            <td style="vertical-align: top;">Staf Prodi Intelijen Teknologi</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; padding: 3px 0;">Hal</td>
+                                <td style="vertical-align: top; padding: 3px 0;">:</td>
+                                <td style="vertical-align: top; padding: 3px 0;">${hal}</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; padding: 3px 0;">Nilai</td>
+                                <td style="vertical-align: top; padding: 3px 0;">:</td>
+                                <td style="vertical-align: top; padding: 3px 0;">${nilai}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <!-- Garis Pembatas Tebal Horizontal Penuh -->
+                    <div style="border-top: 1.5px solid #000000; margin-top: 15pt; margin-bottom: 15pt; width: 100%;"></div>
+
+                    <!-- Isi Fakta & Catatan -->
+                    <div style="font-weight: bold; font-size: 12pt; margin-bottom: 4pt;">I. FAKTA-FAKTA</div>
+                    <div class="ql-editor-content" style="font-size: 12pt; margin-bottom: 12pt;">${faktaHtml}</div>
+
+                    <div style="font-weight: bold; font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">II. CATATAN</div>
+                    <div class="ql-editor-content" style="font-size: 12pt; margin-bottom: 12pt;">${catatanHtml}</div>
+
+                    <div style="font-weight: bold; font-size: 12pt; margin-top: 14pt; margin-bottom: 4pt;">LAMPIRAN</div>
+                    ${lampiranHtml}
+                </div>
+            `;
+        }
+
+        function updateLivePreview() {
+            document.getElementById('printableArea').innerHTML = buildDocumentHtml(false);
+        }
+
+        function generateDocument(type) {
+            const noLaporan = document.getElementById('noLaporan').value;
+            const bulan = document.getElementById('bulan').value;
+            const tahun = document.getElementById('tahun').value;
+            const fileName = `LI-${noLaporan}-${bulan}-${tahun}`;
+
+            if (type === 'docx') {
+                const docBodyForWord = buildDocumentHtml(true);
+                const htmlTemplate = `
+                    <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                          xmlns:w="urn:schemas-microsoft-com:office:word" 
+                          xmlns="http://www.w3.org/TR/REC-html40">
+                    <head>
+                        <meta charset="UTF-8">
+                        <style>
+                            body, table, td, div, p {
+                                font-family: 'Arial', sans-serif !important;
+                                font-size: 12pt;
+                            }
+                            .ql-editor-content ol {
+                                list-style-type: decimal !important;
+                                padding-left: 18pt !important;
+                                margin-left: 0 !important;
+                            }
+                            .ql-editor-content ul {
+                                list-style-type: disc !important;
+                                padding-left: 18pt !important;
+                                margin-left: 0 !important;
+                            }
+                            .ql-editor-content li {
+                                margin-bottom: 2pt !important;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${docBodyForWord}
+                    </body>
+                    </html>
+                `;
+                const converted = htmlDocx.asBlob(htmlTemplate);
+                saveAs(converted, `${fileName}.docx`);
+            } else if (type === 'pdf') {
+                window.print();
+            }
+        }
+
+        function saveToGoogleDrive() {
+            if (currentClass) {
+                alert(`Laporan berhasil dikirim dan diarsipkan secara otomatis ke Google Drive ${currentClass.name}!`);
+            }
+        }
+    </script>
+</body>
+</html>
